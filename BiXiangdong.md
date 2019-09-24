@@ -13,7 +13,7 @@ Java 严格区分大小写
 
 2.不可以使用关键字做标识符
 # 0211自动类型提升与强制转换
-'''java
+```java
 class VarDemo2{
     public static void main(String[] args){
         byte b = 3;
@@ -28,11 +28,11 @@ VarDemo2.java:4: 错误: 不兼容的类型: 从int转换到byte可能会有损�
               ^
 1 个错误
 */
-'''
+```
 b为byte类型，4为int类型，两者相加的时候会将b进行自动类型提升，提升为int类型，但是最后赋值给了byte类型的b就会丢失精度报错
 
 可以改为
-'''java
+```java
 class VarDemo2{
     public static void main(String[] args){
         byte b = 3;
@@ -40,11 +40,11 @@ class VarDemo2{
         System.out.println(c);
     }
 }
-'''
+```
 这里b+4的和为int类型，赋值给int类型的变量c程序就可以正常运行了
 
 还可以改为
-'''java
+```java
 class VarDemo2{
     public static void main(String[] args){
         byte b = 3;
@@ -52,5 +52,5 @@ class VarDemo2{
         System.out.println(b);
     }
 }
-'''
+```
 这里将（b+4）进行了强制转换，将int类型转换为byte类型，损失了精度。
