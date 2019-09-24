@@ -12,7 +12,7 @@ Java 严格区分大小写
 1.数字不可以开头
 
 2.不可以使用关键字做标识符
-# 02_11_13自动类型提升与强制转换、类型运算细节
+# 02_11_13 自动类型提升与强制转换、类型运算细节
 ```java
 class VarDemo2{
     public static void main(String[] args){
@@ -69,3 +69,88 @@ class VarDemo2{
 }
 ```
 这里将(b+4)进行了强制转换，将int类型转换为byte类型，损失了精度。
+
+# 02_14 算术运算符_1
+```java
+class OperateDemo{
+    public static void main(String[] args){
+        int b = 6370;
+        b = 6370/1000*1000;
+        System.out.println(b);
+    }
+}
+/*
+$ java OperateDemo
+6000
+*/
+```
+Java是强类型的语言,6370是int类型，1000也是int类型，那么两者运算完的结果也是int类型，java会将小数点舍去
+
+# 02_15 算术运算符_2、赋值运算符
+```java
+class OperateDemo2{
+    public static void main(String[] args){
+        int a=3,b;
+        b = a++;
+        System.out.println("a="+a+",b="+b);
+    }
+}
+/*
+$ java OperateDemo2
+a=4,b=3
+*/
+```
+ b = a++;就相当于
+ ```java
+ temp = a;//因为a参与了其他运算，内存会将a的值复制一份
+ a = a + 1；//做到这里相当于等式右边a++步骤做完了
+ b = temp;//将复制的a的值赋值给等式左边
+ ```
+ 大家理解了上边这个例子之后下边这个例子就很好理解了
+```java
+ class OperateDemo3{
+     public static void main(String[] args){
+         int i=3;
+         i = i++;
+         System.out.println("i="+i);
+     }
+ }
+ /*
+ $ java OperateDemo3
+i=3
+ */
+```
+
+### 赋值运算符
+s+=4;与s=s+4;一样吗？在Java的世界里是有区别的
+```java
+class OperateDemoFuZhi{
+    public static void main(String[] args){
+        short s=3;
+        s+=4;
+        System.out.println("s="+s);
+    }
+}
+/*
+$ java OperateDemoFuZhi
+s=7
+*/
+```
+而
+```java
+class OperateDemoFuZhi{
+    public static void main(String[] args){
+        short s=3;
+        s = s + 4;
+        System.out.println("s="+s);
+    }
+}
+/*
+$ javac OperateDemoFuZhi.java 
+OperateDemoFuZhi.java:4: 错误: 不兼容的类型: 从int转换到short可能会有损失
+        s = s + 4;
+              ^
+1 个错误
+*/
+```
+因为s+=4;**底层做了强制类型转换**，就相当于s = (short)(s + 4);
