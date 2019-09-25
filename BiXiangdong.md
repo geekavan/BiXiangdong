@@ -244,4 +244,6 @@ b ^ 3 ^ 3 = b
 >> img_decrypt = bitxor(img, 125);
 >> imwrite(img_decrypt, 'nv_xing_decrypt.jpg');
 ```
+！[nv_xing_decrypt.jpg](https://github.com/geekavan/BiXiangdong/blob/master/nv_xing_decrypt.jpg)
 
+至于为什么解密后的图片中有许多彩色的小点呢，欢迎大家留言讨论
