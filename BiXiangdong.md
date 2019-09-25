@@ -241,5 +241,5 @@ b ^ 3 ^ 3 = b
 ```matlab
 >> img = imread('nv_xing_encrypted.jpg');
 >> img_decrypt = bitxor(img, 125);
->> imwrite(img_encrypted, 'nv_xing_decrypt.jpg');
+>> imwrite(img_decrypt, 'nv_xing_decrypt.jpg');
 ```
