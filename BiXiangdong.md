@@ -235,6 +235,7 @@ b ^ 3 ^ 3 = b
 >> imwrite(img_encrypted, 'nv_xing_encrypted.jpg');
 ```
 ![nv_xing_encrypted.jpg](https://github.com/geekavan/BiXiangdong/blob/master/nv_xing_encrypted.jpg)
+
 大家猜到她是谁了吗？
 
 答案揭晓
@@ -243,3 +244,4 @@ b ^ 3 ^ 3 = b
 >> img_decrypt = bitxor(img, 125);
 >> imwrite(img_decrypt, 'nv_xing_decrypt.jpg');
 ```
+
