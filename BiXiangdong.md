@@ -228,7 +228,7 @@ b ^ 3 ^ 3 = b
 
 这个小知识点非常重要，因为有面试题会让你编写程序，找出一段数字里只出现过一次的数字(其他数字都出现过两次)等类似的题，就可以用该知识点来做
 
-另外一个好玩的事情为，该小知识点可以用来加密，比如说用来加密图片(当然现实中没谁会用它来加密图片),这是毕老师提到的一点，我利用matlab(因为用Java写就没那么简单了/笑哭脸)写了一段程序大家可以感受一下
+另外一个好玩的事情为，该小知识点可以用来加密，比如说用来加密图片(当然现实中没谁会用它来加密图片)，这是毕老师提到的一点，我利用matlab(因为用Java写就没那么简单了/笑哭脸)写了一段程序大家可以感受一下
 ```matlab
 >> img = imread('nv_xing.jpg');
 >> img_encrypted = bitxor(img, 125);
@@ -236,7 +236,7 @@ b ^ 3 ^ 3 = b
 ```
 ![nv_xing_encrypted.jpg](https://github.com/geekavan/BiXiangdong/blob/master/nv_xing_encrypted.jpg)
 
-大家猜到她是谁了吗？
+大家猜到她是谁了吗
 
 答案揭晓
 ```matlab
@@ -244,6 +244,6 @@ b ^ 3 ^ 3 = b
 >> img_decrypt = bitxor(img, 125);
 >> imwrite(img_decrypt, 'nv_xing_decrypt.jpg');
 ```
-！[nv_xing_decrypt.jpg](https://github.com/geekavan/BiXiangdong/blob/master/nv_xing_decrypt.jpg)
+![nv_xing_decrypt.jpg](https://github.com/geekavan/BiXiangdong/blob/master/nv_xing_decrypt.jpg)
 
 至于为什么解密后的图片中有许多彩色的小点呢，欢迎大家留言讨论
