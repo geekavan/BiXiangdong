@@ -234,4 +234,12 @@ b ^ 3 ^ 3 = b
 >> img_encrypted = bitxor(img, 3);
 >> imwrite(img_encrypted, 'nv_xing_encrypted.jpg');
 ```
-![nv_xing_encrypted.jpg]()
+![nv_xing_encrypted.jpg](https://github.com/geekavan/BiXiangdong/blob/master/nv_xing_encrypted.jpg)
+大家猜到她是谁了吗？
+
+答案揭晓
+```matlab
+>> img = imread('nv_xing_encrypted.jpg');
+>> img_decrypt = bitxor(img, 125);
+>> imwrite(img_encrypted, 'nv_xing_decrypt.jpg');
+```
