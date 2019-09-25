@@ -231,7 +231,7 @@ b ^ 3 ^ 3 = b
 另外一个好玩的事情为，该小知识点可以用来加密，比如说用来加密图片(当然现实中没谁会用它来加密图片),这是毕老师提到的一点，我利用matlab(因为用Java写就没那么简单了/笑哭脸)写了一段程序大家可以感受一下
 ```matlab
 >> img = imread('nv_xing.jpg');
->> img_encrypted = bitxor(img, 3);
+>> img_encrypted = bitxor(img, 125);
 >> imwrite(img_encrypted, 'nv_xing_encrypted.jpg');
 ```
 ![nv_xing_encrypted.jpg](https://github.com/geekavan/BiXiangdong/blob/master/nv_xing_encrypted.jpg)
