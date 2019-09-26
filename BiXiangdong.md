@@ -12,6 +12,32 @@ Java 严格区分大小写
 1.数字不可以开头
 
 2.不可以使用关键字做标识符
+
+# 02_08负数的进制
+负数的二进制为该负数取绝对值的二进制取反再加一
+
+如：-6
+
+首先计算6的二进制00000000000000000000000000000110
+
+取反&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11111111111111111111111111111001
+
+加一&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11111111111111111111111111111010
+
+即-6的二进制表示为11111111111111111111111111111010
+```java
+class Demo02_08{
+    public static void main(String[] args){
+        System.out.println(Integer.toBinaryString(6));
+        System.out.println(Integer.toBinaryString(-6));
+    }
+/*
+$ java Demo02_08
+110                      //前面的0都被省略了
+11111111111111111111111111111010
+*/
+}
+```
 # 02_11_13 自动类型提升与强制转换、类型运算细节
 ```java
 class VarDemo2{
@@ -226,9 +252,11 @@ boolean b = temp > 3;
 一个数与另一个数异或偶数次，还等于原来那个数，如：
 b ^ 3 ^ 3 = b
 
-这个小知识点非常重要，因为有面试题会让你编写程序，找出一段数字里只出现过一次的数字(其他数字都出现过两次)等类似的题，就可以用该知识点来做
+1.这个小知识点非常重要，因为有面试题会让你编写程序，找出一段数字里只出现过一次的数字(其他数字都出现过两次)等类似的题，就可以用该知识点来做
 
-另外一个好玩的事情为，该小知识点可以用来加密，比如说用来加密图片(当然现实中没谁会用它来加密图片)，这是毕老师提到的一点，我利用matlab(因为用Java写就没那么简单了/笑哭脸)写了一段程序大家可以感受一下
+2.还可以用来做两个变量的换值(不使用第三方变量，参见03_04_05_06节)
+
+3.另外一个好玩的事情为，该小知识点可以用来加密，比如说用来加密图片(当然现实中没谁会用它来加密图片)，这是毕老师提到的一点，我利用matlab(因为用Java写就没那么简单了/笑哭脸)写了一段程序大家可以感受一下
 ```matlab
 >> img = imread('nv_xing.jpg');
 >> img_encrypted = bitxor(img, 125);
@@ -247,3 +275,84 @@ b ^ 3 ^ 3 = b
 ![nv_xing_decrypt.jpg](https://github.com/geekavan/BiXiangdong/blob/master/nv_xing_decrypt.jpg)
 
 至于为什么解密后的图片中有许多彩色的小点呢，欢迎大家留言讨论
+
+# 03_04_05_06位运算符
+<<左移运算符相当于乘以2的次幂，>>右移运算符相当于除以2的次幂(右移的时候原来最高位为几，则补几，即符号位是不变的)，>>>无符号右移(右移的时候无论原来最高位为几，都补0)
+
+```java
+class OperateDemo03_04{
+    public static void main(String[] args){
+        Integer a = -2147483647;
+        System.out.println(Integer.toBinaryString(a));
+        System.out.println("a = "+a);
+        System.out.println(Integer.toBinaryString(a>>1));
+        System.out.println("a>>1 = "+(a>>1));
+        System.out.println(Integer.toBinaryString(a>>>1));
+        System.out.println("a>>>1 = "+(a>>>1));
+    }
+}
+/*
+$ java OperateDemo03_04
+10000000000000000000000000000001
+a = -2147483647
+11000000000000000000000000000000
+a>>1 = -1073741824
+1000000000000000000000000000000   //最开头有一位0，给省略了
+a>>>1 = 1073741824
+ */
+```
+练习题1如何高效地计算2*8
+```java
+class OperateTest03_05{
+    public static void main(String[] args){
+        System.out.println(2<<3);
+    }
+}
+/*
+ $ java OperateTest03_05
+16
+ */
+```
+练习题2，在不使用第三方变量的情况下(答案里也写了利用第三方变量的形式)，怎么将两个变量互换
+
+大家可以自己先思考一下，这个练习题是前几节一起学完后的练习题，不要受本节内容位运算符的影响
+```java
+class OperateTest03_04_05{
+    public static void main(String[] args){
+        /*
+        方式1，利用第三方变量，开发的时候使用这个，因为阅读性强
+        */
+        int a = 4;
+        int b = 3;
+        System.out.println("a="+a+",b="+b);
+        int temp = a;
+        a = b;
+        b = temp;
+        System.out.println("a="+a+",b="+b);
+
+        /*
+        方式2，没有用到第三方变量，面试的时候使用，开发的时候一般不用，因为阅读性较差
+        */
+        int e = 4;
+        int f = 3;
+        System.out.println("e="+e+",f="+f);
+        e = e ^ f;
+        f = e ^ f;
+        e = e ^ f;
+        System.out.println("e="+e+",f="+f);
+        
+        /*
+        方式3，没有用到第三方变量，该种方式不推荐使用(开发面试的时候都不要使用)，因为如果c、d过大的话c=c+d就会进行强制转换，出现错误，这里第二行的输出语句表明c的值就是错的
+        */
+        int c = 2147483647;
+        int d = 3;
+        System.out.println("c="+c+",d="+d);
+        c = c + d;
+        System.out.println("c="+c);
+        d = c - d;
+        c = c - d;
+        System.out.println("c="+c+",d="+d);
+
+    }
+}
+```
