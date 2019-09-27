@@ -356,8 +356,9 @@ class OperateTest03_04_05{
     }
 }
 ```
-# 03_22for语句
+# 03_22_23 for语句
 ```java
+//注意以下程序如果编译出现问题，请使用javac -encoding utf-8 forDemo.java语句进行编译
 class forDemo{
     public static void main(String[] args){
         /*
@@ -404,10 +405,21 @@ class forDemo{
 
 **条件表达式**
 
+——————————————————————————————————————————————————————————————————————————————————————
+
 循环体
 
 每次循环后执行的表达式
 
 **条件表达式**
 
-!["for语句中各个部分的执行顺序"]()
+!["for语句中各个部分的执行顺序"](https://github.com/geekavan/BiXiangdong/blob/master/for%E8%AF%AD%E5%8F%A5%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F.png)
+
+
+### while与for语句最简单的无限循环表现形式
+
+while(true){}
+
+for(;;;){}
+
+for语句中如果条件表达式不写，默认为真
