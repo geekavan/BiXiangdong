@@ -425,3 +425,119 @@ while(true){}
 for(;;;){}
 
 for语句中如果条件表达式不写，默认为真
+
+# 04_01_04For循环嵌套练习-99乘法表&转义字符
+比较简单的一个小联系，大家在编写的时候，可以限制一下自己的用时
+```java
+class ForFor99_04_01_04{
+    public static void main(String[] args){
+        /*
+         九九乘法表
+         1*1=1
+         1*2=2 2*2=4
+         1*3=3 2*3=6 3*3=9
+         */
+        for(int i=0;i<9;i++){
+            for(int j=0;j<(i+1);j++){
+                System.out.print((j+1)+"*"+(i+1)+"="+((j+1)*(i+1)));
+                System.out.print(' ');
+            }
+            System.out.print('\n');
+
+        }
+    }
+}
+/*
+$ java ForFor99_04_01_04
+1*1=1 
+1*2=2 2*2=4
+1*3=3 2*3=6 3*3=9
+1*4=4 2*4=8 3*4=12 4*4=16 
+1*5=5 2*5=10 3*5=15 4*5=20 5*5=25
+1*6=6 2*6=12 3*6=18 4*6=24 5*6=30 6*6=36
+1*7=7 2*7=14 3*7=21 4*7=28 5*7=35 6*7=42 7*7=49 
+1*8=8 2*8=16 3*8=24 4*8=32 5*8=40 6*8=48 7*8=56 8*8=64
+1*9=9 2*9=18 3*9=27 4*9=36 5*9=45 6*9=54 7*9=63 8*9=72 9*9=81
+*/
+```
+从上边结果中，我们发现有几列是没有对齐的，我们想要对齐该怎么做呢？
+
+这里要用到转义字符，顾名思义，可以用来转变字(母)符(号)含义的字符(串)
+
+```java
+class ForFor04_01_04{
+    public static void main(String[] args){
+        System.out.print("hello\tworld");
+        System.out.println();
+        System.out.print("hi\tworld");
+    }
+}
+/*
+$ java ForFor04_01_04
+hello   world
+hi      world
+*/
+```
+上边用到了制表符\t,这个符号像画表格一样，将后边的字符串，放到了第下个格子里边，所以看起来就会对的整齐，大家可以自己动手更改一下99乘法表程序使之打印格式更加规整
+
+其他(仅作为了解)：
+
+\n换行(其实执行了两个步骤\n\r)
+
+\r回车，将当前位置移动到本行开头
+
+(其实这么说来，windows下的Enter键包含了两个步骤\n\r，这一点从Enter下的图标就可以看出来)
+
+\t制表符
+
+\b退格，将当前位置移动到前一列
+
+因为这些并不是重点，所以本笔记不打算给出它们的演示，大家感兴趣的话可以自己试一下
+
+# 04_01_06break&continue
+break用在循环结构中，跳出当前循环体(还可以用在swith语句中)
+
+continue用在循环结构中，结束本次循环，继续下一次循环
+
+下面给出几个例子，说明这两个关键字的作用，请同学注意了解一下循环体的名称，以及如何break或continue指定循环体
+
+break跳出当前循环体
+```java
+class BreakContinueDemo{
+    public static void main(String[] args){
+        for(int i=0;i<3;i++){
+            if(i>1)
+                break;
+            System.out.println(i);
+        }
+    }
+}
+/*
+$ java BreakContinueDemo
+0
+1
+*/
+```
+break跳出指定循环体
+```java
+class BreakContinueDemo2{
+    public static void main(String[] args){
+        for1name:for(int i=0;i<3;i++){
+            for2name:for(int j=0;j<6;j++){
+                if(j>3)
+                    break for1name;
+                System.out.println("i="+i+",j="+j);
+            }
+        }
+    }
+}
+/*
+$ java BreakContinueDemo2
+i=0,j=0
+i=0,j=1
+i=0,j=2
+i=0,j=3
+ */
+```
+continue类同，这里不再举例
+
