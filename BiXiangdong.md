@@ -591,4 +591,66 @@ class ArrayDemo2{
 }
 ```
 
+# 复习练习题(来源《Java程序员面试笔试宝典》)
+1.如何判断一个数是否为2的n次方，大家可以自己动手练习一下
+
+下面是我想的思路
+```java
+class isPowerTest{
+    public static void main(String[] args){
+        System.out.print(isPower(4096));
+
+    }
+    public static boolean isPower(int x){
+        if(x<=0)
+            return false;
+        else{
+            while(x!=0){
+                if(((x&1)==1) && (x/2 == 0))
+                    return true;
+                else if (((x&1)==1) && (x/2 != 0))
+                    return false;
+                x = x>>1;
+            }
+        }
+        return false;
+    }
+}
+```
+
+答案：一个数若为2的n次方，那么它的二进制中只有一个1，如00001000(一个int型在java中占据4个字节，这里只写了低八位)它如果减去1，那么为00000111(只写了低八位)，没有一位是同为1的，两者按位与等于0
+```java
+class IsPowerTest2{
+    public static void main(String[] args){
+        System.out.println(isPower(128));
+    }
+    public static boolean isPower(int x){
+        if(x<=0)
+            return false;
+        else if((x&(x-1))==0)
+            return true;
+        return false;
+    }
+}
+```
+
+2.如何求二进制中1的个数
+```java
+class OneNumbersTest{
+    public static void main(String[] args){
+        System.out.println(checkOneNumbers(0x12481249));
+    }
+    public static int checkOneNumbers(int x){
+        int oneNumbers = 0;
+        while(x!=0){
+            oneNumbers++;
+            x = x&(x-1);
+        }
+        return oneNumbers;
+    }
+}
+```
+
+
+
 
