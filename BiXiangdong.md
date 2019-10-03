@@ -780,6 +780,97 @@ class Sort{
     }
 }
 ```
+# 05_09折半查找
+```java
+class HalfSearch{
+    public static void main(String[] args){
+        int[] arr = {15,23,31,42,49,51,53,64,69,70,72,75,80,88,99};
+        System.out.print(halfSearch(arr,42));
+    }
+    public static int halfSearch(int[] arr ,int key){
+        int lo = 0;
+        int hi = arr.length;
+        int mid = lo + (hi-lo)/2;
+        while(mid!=lo && mid!=hi){
+            if(arr[mid]==key)
+                return mid;
+            if(arr[mid]<key)
+                lo=mid;
+            else
+                hi=mid;
+        mid = lo+(hi-lo)/2;
+        }
+        return -1;
+    }
+}
+```
 
+# 05_11_12进制的转换、查表法
+给定一个数，输出它的十六进制
+```java
+class ArrayDemo{
+    public static void main(String[] args){
+        toHex(15);
+    }
+    public static void toHex(int num){
+        int a= 15;
+        String[] hex = new String[8];
+        for(int i=0;i<8;i++){
+            hex[i]= sign((num & a)>>(i*4));
+            a = a<<4;
+        }
+        for(int i=7;i>=0;i--){
+            System.out.print(hex[i]);
+        }
+
+    }
+    public static String sign(int num){
+        if(num<0 || num > 15)
+            return "";
+        else if(num >=0 && num <=9){
+            return (""+num);
+        }
+        else if(num==10)
+            return ("a");
+        else if(num==11)
+            return ("b");
+        else if(num==12)
+            return "c";
+        else if(num==13)
+            return "d";
+        else if(num==14)
+            return "e";
+        else 
+            return "f";
+    }
+}
+```
+其实这其中获取10-15的二进制表示可以使用查表法
+```java
+class ArrayDemo{
+    public static char[] chs = {'0','1','2','3',
+                                '4','5','6','7',
+                                '8','9','a','b',
+                                'c','d','e','f'};
+    public static void main(String[] args){
+        toHex(60);
+    }
+    public static void toHex(int num){
+        int index = 7;
+        char[] hex = new char[8];
+        while(num!=0){
+            hex[index--]= chs[num&15];
+            num = num>>>4;
+        }
+        for(int i = 0; i < 8;i++){
+            System.out.print(hex[i]);
+        }
+    }
+}
+/*
+$ java ArrayDemo
+      3c
+*/
+```
 
 
