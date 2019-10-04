@@ -140,7 +140,7 @@ $ java OperateDemo
 ```
 Java是强类型的语言,6370是int类型，1000也是int类型，那么两者运算完的结果也是int类型，java会将小数点舍去
 
-# 02_15算术运算符_2、赋值运算符
+# 02_15算术运算符_2_赋值运算符
 ```java
 class OperateDemo2{
     public static void main(String[] args){
