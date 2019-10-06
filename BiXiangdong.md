@@ -1162,4 +1162,5 @@ class Person{
     }
 }
 ```
-![class__init__]()
+![class__init__](https://github.com/geekavan/BiXiangdong/blob/master/class__init__.png)
+注意这里p的赋值顺序和老师不一样，可能存在错误
