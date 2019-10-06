@@ -30,6 +30,7 @@
     * [python中的set与get方法](#python中的set与get方法)
 *[07](#07)
     * [构造函数细节](#07_06构造函数细节)
+    * [this关键字](#07_07_08this关键字)
 
 # 02
 # github中md编写注意事项
@@ -1080,7 +1081,7 @@ $ python PersonDemo.py
 # 07_06构造函数细节
 1.当类没有写构造函数时，编译器会为类自动生成一个空参数空函数体的构造函数
 
-&nbsp;当类有写构造函数时，编译器就不会再自动生成构造函数了
+&nbsp;&nbsp;当类有写构造函数时，编译器就不会再自动生成构造函数了
 
 示例如下：
 
@@ -1140,3 +1141,25 @@ class Person{
 $ javac ConsDemo.java
 */
 ```
+
+# 07_07_08this关键字
+this关键字是所在函数所属对象的引用
+```java
+class ThisDemo{
+    public static void main(String[] args){
+        Person p = new Person("如花",30);
+    }
+}
+class Person{
+    String name;
+    int age;
+    Person(String name){
+        this.name = name;
+    }
+    Person(String name, int age){
+        this(name);//必须放在第一行
+        this.age = age;
+    }
+}
+```
+![class__init__]()
