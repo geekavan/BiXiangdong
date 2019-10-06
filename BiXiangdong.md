@@ -24,6 +24,10 @@
     * [常见排序算法](#05_04_05常见排序算法)
     * [折半查找](#05_09折半查找)
     * [进制的转换_查表法](#05_11_12进制的转换_查表法)
+* [06](#06)
+    * [成员变量和局部变量的区别](#06_08成员变量和局部变量的区别)
+    * [private关键字](#06_14private关键字)
+    * [python中的set与get方法](#python中的set与get方法)
 
 # 02
 # github中md编写注意事项
@@ -912,5 +916,207 @@ $ java ArrayDemo
       3c
 */
 ```
+# 06
+# 06_08成员变量和局部变量的区别
+1.成员变量定义在类中
 
+局部变量定义在函数，局部代码块中
+
+2.成员变量存在于堆中
+
+局部变量存在于虚拟机栈中
+
+3.成员变量定义后就有初始化值，可以直接使用
+
+局部变量在定义后无初始化值，不可以直接使用
+
+4.成员变量随着对象的创建而存在，随着对象的消失而消失
+
+局部变量随着函数的加载而存在而存在，随着函数的弹栈而消失
+
+下面两段程序是区别3的演示
+```java
+class Test06_08{
+    public static void main(String[] args){
+        Person p = new Person();
+        System.out.println(p.name);
+        System.out.println(p.age);
+    }
+}
+class Person{
+    String name;
+    int age;
+}
+/*
+$ java Test06_08
+null
+0
+*/
+```
+
+```java
+class Test06_08{
+    public static void main(String[] args){
+        String name;
+        int age;
+        System.out.println(name);
+        System.out.println(age);
+    }
+}
+/*
+$ javac Test06_08.java
+Test06_08.java:16: 错误: 可能尚未初始化变量name
+        System.out.println(name);
+                           ^
+Test06_08.java:17: 错误: 可能尚未初始化变量age
+        System.out.println(age);
+                           ^
+2 个错误
+ */
+```
+# 06_14private关键字
+```java
+class PersonDemo{
+    public static void main(String[] args){
+        Person p = new Person();
+        p.age = -20;
+        System.out.println(p.age);
+    }
+}
+class Person{
+    int age;
+}
+/*
+$ java PersonDemo
+-20
+*/
+```
+但是一个人的年龄为负值是不符合常识的，出现这种情况的原因为age数据对外暴露，或者说我们没有对输入数据进行检查，改变方式为：
+1.将age设置为private，类外不能对其进行直接访问
+2.添加一种方法可以设置age值，但要对所赋的值进行合理性判断
+
+
+更改为：
+```java
+class PersonDemo{
+    public static void main(String[] args){
+        Person p = new Person();
+        p.setAge(-20);
+        System.out.println(p.getAge());
+    }
+}
+class Person{
+    private int age;
+    public void setAge(int ag){
+        if(ag<=0 || age>=150)
+            System.out.println("错误的数据");
+        else
+            age = ag;
+    }
+    public int getAge(){
+        return age;
+    }
+}
+/*
+$ java PersonDemo
+错误的数据
+0
+*/
+```
+因为age为private类型，类外访问不到所以一般会有get方法用来获取age
+
+### python中的set与get方法
+```python
+class Person():
+    def __init__(self):
+        self.__age = 0
+    @property
+    def getAge(self):
+        return self.__age
+    @getAge.setter
+    def setAge(self, ag):
+        if ((ag<0) or (ag > 150)):
+            print("错误的数据")
+        else:
+            self.__age = ag
+p = Person()
+p.setAge = -20
+print(p.getAge)
+'''
+$ python PersonDemo.py
+错误的数据
+0
+'''
+```
+
+一般地我们将上述程序写为
+```python
+class Person():
+    def __init__(self):
+        self.__age = 0
+    @property
+    def age(self):
+        return self.__age
+    @age.setter
+    def age(self, ag):
+        if ((ag<0) or (ag > 150)):
+            print("错误的数据")
+        else:
+            self.__age = ag
+p = Person()
+p.age = -20
+print(p.age)
+'''
+$ python PersonDemo.py
+错误的数据
+0
+'''
+```
+即将setAge与getAge都写为age，从名称到操作都是像在和成员变量打交道一样
+
+# 07
+# 07_06构造函数细节
+1.当类没有写构造函数时，编译器会为类自动生成一个空参数空函数体的构造函数
+
+&nbsp;当类有写构造函数时，编译器就不会再自动生成构造函数了
+
+示例如下：
+
+```java
+class ConsDemo{
+    public static void main(String[] args){
+        Person p = new Person();
+    }
+}
+class Person{
+    private char sex;
+}
+/*
+$ javac ConsDemo.java
+*/
+```
+```java
+class ConsDemo{
+    public static void main(String[] args){
+        Person p = new Person();
+    }
+}
+class Person{
+    private char sex;
+    Person(char sex){
+        this.sex = sex;
+    }
+}
+/*
+$ javac ConsDemo.java
+1 个错误
+
+        Person p = new Person();
+                   ^
+  需要: char
+  找到: 没有参数
+  原因: 实际参数列表和形式参数列表长度不同
+1 个错误
+*/
+```
 
