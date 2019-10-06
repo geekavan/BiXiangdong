@@ -30,6 +30,7 @@
     * [python中的set与get方法](#python中的set与get方法)
 * [07](#07)
     * [构造函数细节](#07_06构造函数细节)
+    * [python为什么不支持函数重载](#python为什么不支持函数重载)
     * [this关键字](#07_07_08this关键字)
 
 # 02
@@ -1140,6 +1141,72 @@ class Person{
 /*
 $ javac ConsDemo.java
 */
+```
+3.构造函数也可以重载
+```java
+class ConsDemo2{
+    public static void main(String[] args){
+        Person p = new Person();
+        System.out.println(p.name+":"+p.sex+"|");
+        Person p1 = new Person('f');
+        System.out.println(p1.name+":"+p1.sex+"|");
+        Person p2 = new Person("小明",'f');
+        System.out.println(p2.name+":"+p2.sex+"|");
+    }
+}
+class Person{
+    String name;//为了减少代码量，我没有限定成员变量为private
+    char sex;
+    Person(){}
+    Person(char sex){
+        this.sex = sex;
+    }
+    Person(String name, char sex){
+        this.name = name;
+        this.sex = sex;
+    }
+}
+/*
+$ java ConsDemo2
+null: |
+null:f|
+小明:f|
+*/
+```
+其实这里老师并没有讲，我想在这里说明为什么python不支持函数重载
+### python为什么不支持函数重载
+首先我们要了解为什么java要支持函数重载
+
+1.解决函数功能相同，但是函数参数类型不同的问题。比如同为add,两个int型相加和double型相加就不一样，如果不在支持函数重载，那么同一个函数功能就要不同的函数名，烂透了
+
+2.解决函数目的相同，但是参数个数不一样的问题。比如孩子类，孩子一生下来(创建出来)有的就有名字，有的还没有来得及起名字，那么同为对象初始化，参数个数就不一样，不支持重载的话，就需要不同函数名字(其实这一点也可以通过默认参数来解决)，烂透了
+
+那么python不支持函数重载那它又是怎么解决这些问题的呢？
+
+1.python是动态语言，不需要去指定变量类型，自然没有1的问题
+
+2.python支持默认参数(Java并不支持默认参数)，这样一定程度上就解决了问题2，比如上述程序ConsDemo2，虽然有的构造函数没有指定name或者sex的值，但是如果不指定的话，它们也是存在默认值的，这样的话python也可以较完美地改写上述程序，如下：
+
+```python
+class Person:#当类没有父类时，类名后面的()可以省略
+    def __init__(self, name="null", sex = ' '):
+        # 注意这里的null为一个字符串，和Java中的null不是一回事，python中""与''都是表示字符串而Java中""是字符串而''是字符
+        self.name = name
+        self.sex = sex
+
+if __name__=="__main__":
+    p = Person()
+    print(p.name+":"+p.sex+"|")
+    p1 = Person(sex = 'f')
+    print(p1.name+":"+p1.sex+"|")
+    p2 = Person("小明",'f')
+    print(p2.name+":"+p2.sex+"|")
+'''
+$ python ConsDemo2.py
+null: |
+null:f|
+小明:f|
+'''
 ```
 
 # 07_07_08this关键字
