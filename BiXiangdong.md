@@ -28,6 +28,8 @@
     * [成员变量和局部变量的区别](#06_08成员变量和局部变量的区别)
     * [private关键字](#06_14private关键字)
     * [python中的set与get方法](#python中的set与get方法)
+*[07](#07)
+    * [构造函数细节](#07_06构造函数细节)
 
 # 02
 # github中md编写注意事项
@@ -1120,3 +1122,21 @@ $ javac ConsDemo.java
 */
 ```
 
+2.构造函数中有return语句(可以省略不写)
+```java
+class ConsDemo{
+    public static void main(String[] args){
+        Person p = new Person('f');
+    }
+}
+class Person{
+    private char sex;
+    Person(char sex){
+        this.sex = sex;
+        return;
+    }
+}
+/*
+$ javac ConsDemo.java
+*/
+```
