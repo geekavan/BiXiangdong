@@ -34,6 +34,7 @@
     * [this关键字](#07_07_08this关键字)
     * [static关键字特点及注意事项](#07_11_13static关键字特点及注意事项)
     * [成员变量和静态变量的区别](#07_12成员变量和静态变量的区别)
+    * [静态代码块_构造代码块_局部代码块](#07_17_18静态代码块_构造代码块_局部代码块)
 
 # 02
 # github中md编写注意事项
@@ -1240,7 +1241,7 @@ class Person{
 ![class__init__](https://github.com/geekavan/BiXiangdong/blob/master/class__init__.png)
 注意这里p的赋值顺序和老师不一样，可能存在错误
 
-### 07_11_13static关键字特点及注意事项
+# 07_11_13static关键字特点及注意事项
 
 ##### static关键字特点
 
@@ -1252,6 +1253,17 @@ class Person{
 
 4.static修饰的成员随着类的加载而存在，先于对象存在
 
+```java
+class Person{
+    static country;
+    String name;
+    System.out.println(country+":"+name);
+    //上述语句补全为System.out.println(Person.country+":"+this.name);
+}
+```
+
+其中虽然country可以由对象调用，写为this.country但是为了阅读性更好还是写为类名调用比较合适
+
 ##### static注意事项
 
 1.静态方法中不能访问非静态成员
@@ -1262,7 +1274,7 @@ class Person{
 
 3.主函数是静态的
 
-### 07_12成员变量和静态变量的区别
+# 07_12成员变量和静态变量的区别
 
 1.生存周期不同：
 
@@ -1287,3 +1299,75 @@ class Person{
 成员变量又叫实例变量
 
 静态变量又叫类变量
+
+# 07_17_18静态代码块_构造代码块_局部代码块
+
+### 静态代码块
+
+静态代码块：类中static修饰的代码块
+
+作用：用于类的初始化
+
+什么时候执行：类加载的时候执行，且执行一次
+
+### 构造代码块
+
+构造代码块：类中{}内的代码块
+
+什么时候执行：创建对象的时候执行，创建一次对象就执行一次
+
+### 局部代码块
+
+局部代码块：方法中{}内的代码块
+
+作用：用于限定局部变量的生存范围，节省内存空间
+
+什么时候执行：方法中顺序执行
+```java
+class Person{
+
+    {
+        System.out.println("构造代码块 run");
+    }
+    Person(){
+        System.out.println("构造函数 run");
+    }
+    static{
+        System.out.println("静态代码块 run");
+    }
+    public void show(){
+        System.out.println("show run");
+        {
+            System.out.println("局部代码块 run");
+        }
+    }
+}
+class StaticCodeDemo{
+    public static void main(String[] args){
+        new Person();
+        new Person();
+        new Person().show();
+    }
+}
+/*
+$ java StaticCodeDemo
+静态代码块 run
+构造代码块 run
+构造函数 run
+构造代码块 run
+构造函数 run
+构造代码块 run
+构造函数 run
+show run
+局部代码块 run
+*/
+```
+
+注意：
+
+1.当程序中使用到某类的时候，这个类就加载到内存的方法区中，类只用加载一次，所以**静态代码块**只执行了一次
+
+2.当创建对象时，会先执行***构造代码块**，再执行**构造函数**，创建一次对象就执行一次构造代码块及构造函数
+
+3.**局部代码块**在方法中按函数语句顺序执行
+
