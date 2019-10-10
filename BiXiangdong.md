@@ -1366,7 +1366,7 @@ class Person{
 
 ```java
 class Person{
-    static Sring country;
+    static String country;
     String name;
     System.out.println(country+":"+name);
     //上述语句补全为System.out.println(Person.country+":"+this.name);
