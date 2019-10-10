@@ -1057,7 +1057,7 @@ class Person():
     def getAge(self):
         return self.__age
     @getAge.setter
-    def setAge(self, ag): #其实这里ag的阅读性并不强，一般我们会把其写为age，相应地为了区分局部变量与成员变量会将ag<0写为self.__age<0，ag>150类同
+    def setAge(self, ag):
         if ((ag<0) or (ag > 150)):
             print("错误的数据")
         else:
@@ -1081,7 +1081,7 @@ class Person():
     def age(self):
         return self.__age
     @age.setter
-    def age(self, ag):
+    def age(self, ag): #其实这里ag的阅读性并不强，一般我们会把其写为age，相应地为了区分局部变量与成员变量会将ag<0写为self.__age<0，ag>150类同
         if ((ag<0) or (ag > 150)):
             print("错误的数据")
         else:
