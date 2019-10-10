@@ -1366,14 +1366,14 @@ class Person{
 
 ```java
 class Person{
-    static country;
+    static Sring country;
     String name;
     System.out.println(country+":"+name);
     //上述语句补全为System.out.println(Person.country+":"+this.name);
 }
 ```
 
-其中虽然country可以由对象调用，写为this.country但是为了阅读性更好还是写为类名调用比较合适
+其中虽然country可以由对象调用写为this.country，但是为了阅读性更好还是写为类名调用比较合适，表明它是静态成员变量
 
 ##### static注意事项
 
