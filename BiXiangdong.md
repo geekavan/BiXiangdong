@@ -39,6 +39,7 @@
 * [08](#08)
     * [Java中的单继承](#08_08Java中的单继承)
     * [子父类中的成员变量特点及内存图解](#08_10_11子父类中的成员变量特点及内存图解)
+    * [子父类中的成员函数特点](#08_12子父类中的成员函数特点)
 * [内存图解大综合](#内存图解大综合)
 
 # 02
@@ -1425,13 +1426,103 @@ class Zi extends Fu{
 
 3.用到了Zi类(指new Zi()语句)，Zi类有一个父类Fu，那么先将Fu加载到方法区，之后将子类Zi加载到方法区，子类Zi中有一个super指向父类Fu内存区
 
-4.new关键字会在堆中开辟一片区域，建立Zi对象，在这一边区域中开辟两个小区域，一个用来储存Fu类中的成员变量str，一个用来存储Zi类中的成员变量str，并先赋初值为null，之后调用构造函数，之后分别赋值为fuStr与ziStr
+4.new关键字会在堆中开辟一片区域，建立Zi对象，在这一边区域中开辟两个小区域，一个用来储存Fu类中的成员变量str，一个用来存储Zi类中的成员变量str，并先赋初值为null，之后分别赋值为fuStr与ziStr，之后调用构造函数，
 
 5.随后对象初始化完毕，将Zi对象的引用赋值给栈中的Zi类类型的变量z
 
 6.调用子类的方法show，show方法进栈，根据show放里边的this在堆中查找Zi类型对象，输出this.str与super.str的值
 
 7.show方法弹栈，main方法弹栈
+
+# 08_12子父类中的成员函数特点
+
+### 成员函数的覆盖
+
+```java
+class ExtendsDemo3{
+    public static void main(String[] args){
+        Zi z = new Zi();
+        z.show1();
+    }
+}
+class Fu{
+    void show1(){
+        System.out.println("Fu show run");
+    }
+}
+class Zi extends Fu{
+    void show2(){
+        System.out.println("Zi show run");
+    }
+}
+/* 
+$ java ExtendsDemo3
+Fu show run
+*/
+```
+
+上述程序运行过程简写，如想看详细过程请参考__内存图解大综合__章节
+
+1.ExtendsDemo3类加载到内存
+
+2.主函数main进栈
+
+3.Fu类加载进内存
+
+4.Zi类加载进内存，其super指向其父类Fu所在内存空间
+
+5.堆内存中建立Zi类对象
+
+6.在本类Zi中查找show1函数，本类没有
+
+7.通过super在其父类中寻找show1函数，找到了，show1入栈
+
+8.show1执行，show1弹栈
+
+9.main弹栈
+
+```java
+class ExtendsDemo3{
+    public static void main(String[] args){
+        Zi z = new Zi();
+        z.show();
+    }
+}
+class Fu{
+    void show(){
+        System.out.println("Fu show run");
+    }
+}
+class Zi extends Fu{
+    void show(){
+        System.out.println("Zi show run");
+    }
+}
+/* 
+$ java ExtendsDemo3
+Zi show run
+*/
+```
+
+上述程序运行过程简写，如想看详细过程请参考__内存图解大综合__章节
+
+1.ExtendsDemo3类加载到内存
+
+2.主函数main进栈
+
+3.Fu类加载进内存
+
+4.Zi类加载进内存，其super指向其父类Fu所在内存空间
+
+5.堆内存中建立Zi类对象
+
+6.在本类Zi中查找show函数，本类存在show函数，并不继续在其父类中寻找，show入栈
+
+7.show执行，show弹栈
+
+8.main弹栈
+
+我们通过子类对象调用的都是子类的show方法，看起来父类的show方法就像被覆盖掉了一样，所以称之为覆盖，也称之为重写，覆写
 
 # 内存图解大综合
 
@@ -1525,18 +1616,15 @@ $ java ExtendsDemo
 
 4.在堆内存中开辟空间(new Zi()语句)，并将空间分为两份(该说法可能有误)，先初始化父类对象(注意：该说法可能有误，因为在这段程序里我们从头至尾并没有建立过父类Fu对象)，再初始化子类对象，父类成员变量存储在父类对象所在区域中，子类对象成员变量存储在子类对象所在区域中。
 
-5.初始化对象时，先执行构造代码块，再执行成员变量的赋值语句，最后执行构造函数(有入栈出栈操作)。所以次序依次为：
+5.初始化对象时，先执行构造代码块和执行成员变量的赋值语句(两者按语句先后顺序)，最后执行构造函数(有入栈出栈操作)。所以次序依次为：
 ```java
 /*
 构造代码块  run
-(两者之间执行了赋值操作)
+(两者之间执行了赋值操作)(构造代码块和赋值语句之间的先后顺序按语句顺序来的，本程序赋值语句在后，故后执行)
 构造函数  run
 */
 ```
-
-    1.为什么构造代码块在赋值语句之前执行？
-    不知道，记住吧先
-    2.为什么构造语句在赋值语句之后执行？
+    1.为什么构造语句在赋值语句(还有构造代码块)之后执行？
     如果构造函数在赋值语句之前执行，那么不论构造函数对成员变量怎样赋值，成员变量最终的初始化值只能是程序里所赋的初始值，方法调用者不能够改动，这显然违背了构造函数设计的初衷。
 
 6.结合3、4、5有输出为：
@@ -1583,4 +1671,78 @@ show run
 ```
 
 8.show方法弹栈，main方法弹栈
+
+我们来看一下赋值语句写在构造代码块之前的程序，确定两者是按照语句顺序执行的
+
+```java
+class ExtendsDemo{
+    public static void main(String[] args){
+        Zi z = new Zi();
+        z.show();
+    }
+}
+class Fu{
+    //静态代码块
+    static{
+        System.out.println("父类静态代码块  run");
+    }
+    //构造函数
+    Fu(){
+        System.out.println("父类构造函数  run");
+    }
+    //构造代码块
+    {
+        System.out.println("父类构造代码块  run");
+    }
+    String str = "fuStr";
+}
+class Zi extends Fu{
+    //静态代码块
+    static{
+        System.out.println("子类静态代码块  run");
+    }
+    //构造函数
+    Zi(){
+        System.out.println("—————————————————————————————————");
+        System.out.println(this.str);
+        this.str = "子类构造函数  run";
+        System.out.println(this.str);
+        System.out.println("—————————————————————————————————");
+    }
+    String str = "ziStr";
+    //构造代码块
+    {
+        System.out.println("—————————————————————————————————");
+        System.out.println(this.str);
+        this.str = "子类构造代码块  run";
+        System.out.println(this.str);
+        System.out.println("—————————————————————————————————");
+    }
+    public void show(){
+        System.out.println("—————————————————————————————————");
+        System.out.println("show run");
+        System.out.println(this.str+"......"+super.str);
+        System.out.println("—————————————————————————————————");
+    }
+}
+/*
+$ java ExtendsDemo
+父类静态代码块  run
+子类静态代码块  run
+父类构造代码块  run
+父类构造函数  run
+—————————————————————————————————
+ziStr
+子类构造代码块  run
+—————————————————————————————————
+—————————————————————————————————
+子类构造代码块  run
+子类构造函数  run
+—————————————————————————————————
+—————————————————————————————————
+show run
+子类构造函数  run......fuStr     
+—————————————————————————————————
+*/
+```
 

@@ -32,6 +32,7 @@ class Zi extends Fu{
         System.out.println(this.str);
         System.out.println("—————————————————————————————————");
     }
+    String str = "ziStr";
     //构造代码块
     {
         System.out.println("—————————————————————————————————");
@@ -40,7 +41,6 @@ class Zi extends Fu{
         System.out.println(this.str);
         System.out.println("—————————————————————————————————");
     }
-    String str = "ziStr";
     public void show(){
         System.out.println("—————————————————————————————————");
         System.out.println("show run");
