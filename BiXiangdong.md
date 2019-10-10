@@ -301,11 +301,12 @@ a=4,b=false
 ```
 过程为：
 
-int temp = a;
+    int temp = a;
 
-a = a + 1；
+    a = a + 1；
 
-boolean b = temp > 3;
+    boolean b = temp > 3;
+    
 ### 异或运算
 一个数异或另一个数偶数次，还等于原来那个数，如：
 b ^ 3 ^ 3 = b
