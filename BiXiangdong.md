@@ -37,6 +37,7 @@
     * [static关键字_内存图解](#07_15static关键字_内存图解)
     * [静态代码块_构造代码块_局部代码块](#07_17_18静态代码块_构造代码块_局部代码块)
 * [08](#08)
+    * [单例设计模式](#08_04单例设计模式)
     * [Java中的单继承](#08_08Java中的单继承)
     * [子父类中的成员变量特点及内存图解](#08_10_11子父类中的成员变量特点及内存图解)
     * [子父类中的成员函数特点](#08_12子父类中的成员函数特点)
@@ -1489,6 +1490,79 @@ show run
 
 # 08
 
+# 08_04_06单例设计模式
+
+何为单例设计模式？一个类只能有一个对象
+
+如何做到呢？
+
+1.首先类外应该不允许建立本类对象，否则的话就可能会有很多个对象，因为用户并不受我们控制，这一点要怎么实现呢？
+
+    类外建立对象时一定会初始化，就相当于调用了类的构造函数，那么我们把构造函数私有化，类外不可以访问，类外不就不可以建立对象了吗
+
+2.但是类外不能够建立对象的话，怎么使得程序会有一个对象呢？
+
+    答案当然是在类内建立对象
+
+3.那么外界怎么获取这个对象呢？
+
+    1.类内提供一个方法，返回本类对象
+
+    2.要注意此类在类外建立不了对象，只能通过类名访问该方法，所以该方法应该为静态
+
+    3.静态方法只能访问静态成员变量，所以存储对象的类类型变量应该为静态变量
+
+```java
+class Person{
+    private Person(){}
+    private static Person p = new Person();//为什么是私有？和其他成员变量一样，为了可控，不被外界随意篡改，提供方法访问，在方法中对输入参数进行判断，符合要求则返回实例
+    public static Person getInstance(){
+        return p;
+    }
+}
+class SingleDemo{
+    public static void main(String[] args){
+        Person p1 = Person.getInstance();
+        Person p2 = Person.getInstance();
+        System.out.println(p1==p2);
+    }
+}
+/*
+$ java SingleDemo
+true
+*/
+```
+
+该方法中Person类只要一加载，堆中就存在Person对象，称之为饿汉式单例模式
+
+```java
+class Person{
+    private Person(){}
+    private static Person p = null;
+    public static Person getInstance(){
+        if(p==null){
+            p = new Person();
+            return p;
+        }
+        else
+            return p;
+    }
+}
+class SingleDemo{
+    public static void main(String[] args){
+        Person p1 = Person.getInstance();
+        Person p2 = Person.getInstance();
+        System.out.println(p1==p2);
+    }
+}
+/*
+$ java SingleDemo
+true
+*/
+```
+
+该方式下，类加载时堆中并无Person对象，只有当getInstance()方法被调用时，对象才被建立，称之为懒汉式单例建立模式
+
 # 08_08Java中的单继承
 
 单继承：一个类只有一个直接父类
@@ -1857,3 +1931,4 @@ show run
 —————————————————————————————————
 */
 ```
+
