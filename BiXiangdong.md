@@ -1481,6 +1481,7 @@ Fu show run
 
 9.main弹栈
 
+下面这段程序与上述程序的区别为下面这段程序的子父类成员函数名称都为show
 ```java
 class ExtendsDemo3{
     public static void main(String[] args){
