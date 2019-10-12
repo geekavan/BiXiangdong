@@ -38,6 +38,13 @@
     * [静态代码块_构造代码块_局部代码块](#07_17_18静态代码块_构造代码块_局部代码块)
 * [08](#08)
     * [单例设计模式](#08_04_06单例设计模式)
+    * [数组工具类中静态的使用_文档的使用](#08_02_03数组工具类中静态的使用_文档的使用)
+        * [阶段一____](#阶段一____)
+        * [阶段二____函数](#阶段二____函数)
+        * [阶段三____类](#阶段三____类)
+        * [阶段四____静态](#阶段四____静态)
+        * [阶段五____私有化构造函数](#阶段五____私有化构造函数)
+        * [阶段六____文档的使用](#阶段六____文档的使用)
     * [Java中的单继承](#08_08Java中的单继承)
     * [子父类中的成员变量特点及内存图解](#08_10_11子父类中的成员变量特点及内存图解)
     * [子父类中的成员函数特点](#08_12子父类中的成员函数特点)
@@ -1562,6 +1569,308 @@ true
 ```
 
 该方式下，类加载时堆中并无Person对象，只有当getInstance()方法被调用时，对象才被建立，称之为懒汉式单例建立模式
+
+# 08_02_03数组工具类中静态的使用_文档的使用
+
+我将以一段程序几个阶段的演化来讲解此部分内容
+
+### 阶段一____
+
+```java
+class ArrayToolsDemo1{
+    public static void main(String[] args){
+        int[] arr = {5,4,7,6,9,8,2,1,3,0};
+        int maxIndex = 0;
+        for(int i=0;i<arr.length;i++){
+            if(arr[i]>arr[maxIndex])
+                maxIndex = i;
+        }
+        System.out.println(arr[maxIndex]);
+    }
+}
+/*
+$ java ArrayToolsDemo1
+9
+*/
+```
+
+### 阶段二____函数
+
+求数组最大值可能会经常用到，为了提高代码的复用性将其封装为函数
+
+```java
+class ArrayToolsDemo2{
+    public static void main(String[] args){
+        int[] arr = {5,4,7,6,9,8,2,1,3,0};
+        int max = max(arr);
+        System.out.println(max);
+    }
+
+    public static int max(int[] arr){
+        int maxIndex = 0;
+        for(int i=0;i<arr.length;i++){
+            if(arr[i]>arr[maxIndex])
+                maxIndex = i;
+        }
+        return arr[maxIndex];
+    }
+}
+/*
+$ java ArrayToolsDemo2
+9
+*/
+```
+
+### 阶段三____类
+
+当有很多个关于数组的函数，一个较为好的代码管理办法是将其封装在一个数组工具类中，这样的话无论使用者要调用哪个关于数组的函数，只要找到这个数组工具类就可以了
+
+```java
+class ArrayTools{
+    public int getMax(int[] arr){
+        int maxIndex = 0;
+        for(int i=0;i<arr.length;i++){
+            if(arr[i]>arr[maxIndex])
+                maxIndex = i;
+        }
+        return arr[maxIndex];
+    }
+    public void selectSort(int[] arr){
+        for(int i=0;i<arr.length;i++){
+            for(int j=i;j<arr.length;j++){
+                if(arr[j] < arr[i])
+                    swap(arr, i, j);
+            }
+        }
+    }
+    private void swap(int[] arr, int i,int j){
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+    public void print(int[] arr){
+        System.out.print("[");
+        for(int i=0;i<arr.length-1;i++){
+            System.out.print(arr[i]+",");
+        }
+        System.out.print(arr[arr.length-1]+"]");
+        System.out.print('\n');
+    }
+}
+class ArrayToolsDemo3{
+    public static void main(String[] args){
+        int[] arr = {5,4,7,6,9,8,2,1,3,0};
+        ArrayTools tool = new ArrayTools();
+        tool.print(arr);
+        tool.selectSort(arr);
+        tool.print(arr);
+    }
+}
+/*
+$ java ArrayToolsDemo3
+[5,4,7,6,9,8,2,1,3,0]
+[0,1,2,3,4,5,6,7,8,9]
+*/
+```
+
+### 阶段四____静态
+
+我们仔细观察程序不难发现，我们ArrayTools类中所有的函数只需要给定参数就可以正常运行，用不到类对象任何特有的数据，所以建立ArrayTools类的对象是无意义的，所有函数应该为静态，可以由类名直接访问
+
+```java
+class ArrayTools{
+    public static int getMax(int[] arr){
+        int maxIndex = 0;
+        for(int i=0;i<arr.length;i++){
+            if(arr[i]>arr[maxIndex])
+                maxIndex = i;
+        }
+        return arr[maxIndex];
+    }
+    public static void selectSort(int[] arr){
+        for(int i=0;i<arr.length;i++){
+            for(int j=i;j<arr.length;j++){
+                if(arr[j] < arr[i])
+                    swap(arr, i, j);
+            }
+        }
+    }
+    private static void swap(int[] arr, int i,int j){
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+    public static void print(int[] arr){
+        System.out.print("[");
+        for(int i=0;i<arr.length-1;i++){
+            System.out.print(arr[i]+",");
+        }
+        System.out.print(arr[arr.length-1]+"]");
+        System.out.print('\n');
+    }
+}
+class ArrayToolsDemo4{
+    public static void main(String[] args){
+        int[] arr = {5,4,7,6,9,8,2,1,3,0};
+        ArrayTools.print(arr);
+        ArrayTools.selectSort(arr);
+        ArrayTools.print(arr);
+    }
+}
+/*
+$ java ArrayToolsDemo4
+[5,4,7,6,9,8,2,1,3,0]
+[0,1,2,3,4,5,6,7,8,9]
+*/
+```
+
+### 阶段五____私有化构造函数
+
+该类不需要建立对象就可以使用，但是使用者可能会建立对象来使用，这只会白白地浪费空间，为了防止这种情况将类的构造函数私有化，不允许类外建立对象。
+
+```java
+class ArrayTools{
+    private ArrayTools(){}
+    public static int getMax(int[] arr){
+        int maxIndex = 0;
+        for(int i=0;i<arr.length;i++){
+            if(arr[i]>arr[maxIndex])
+                maxIndex = i;
+        }
+        return arr[maxIndex];
+    }
+    public static void selectSort(int[] arr){
+        for(int i=0;i<arr.length;i++){
+            for(int j=i;j<arr.length;j++){
+                if(arr[j] < arr[i])
+                    swap(arr, i, j);
+            }
+        }
+    }
+    private static void swap(int[] arr, int i,int j){
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+    public static void print(int[] arr){
+        System.out.print("[");
+        for(int i=0;i<arr.length-1;i++){
+            System.out.print(arr[i]+",");
+        }
+        System.out.print(arr[arr.length-1]+"]");
+        System.out.print('\n');
+    }
+}
+class ArrayToolsDemo5{
+    public static void main(String[] args){
+        int[] arr = {5,4,7,6,9,8,2,1,3,0};
+        ArrayTools.print(arr);
+        ArrayTools.selectSort(arr);
+        ArrayTools.print(arr);
+    }
+}
+/*
+$ java ArrayToolsDemo5
+[5,4,7,6,9,8,2,1,3,0]
+[0,1,2,3,4,5,6,7,8,9]
+*/
+```
+
+### 阶段六____文档的使用
+
+这个类我要是分享给别人使用的话，测试类ArrayToolsDemo肯定不用分享给别人，从没听过下载qq还附带qq的测试程序的，所以我们要将类ArrayTools单独写在一个文件里，为了文件外能够访问该类，要改变该类的权限为public，同时还要写文档来说明这个类里边都有哪些东西可用以及它们该怎么用
+
+```java
+/**
+* 数组工具类，包含：求数组最大值、选择排序、打印数组功能
+* @author geekavan
+* @version v1.0
+*/
+public class ArrayTools{
+    private ArrayTools(){}
+    /**
+     * 求数组最大值
+     * @param arr 输入int[]类型数组
+     * @return 该数组的最大值
+    */
+    public static int getMax(int[] arr){
+        int maxIndex = 0;
+        for(int i=0;i<arr.length;i++){
+            if(arr[i]>arr[maxIndex])
+                maxIndex = i;
+        }
+        return arr[maxIndex];
+    }
+    /**
+     * 选择排序
+     * @param arr 需要排序的数组int[]类型
+    */
+    public static void selectSort(int[] arr){
+        for(int i=0;i<arr.length;i++){
+            for(int j=i;j<arr.length;j++){
+                if(arr[j] < arr[i])
+                    swap(arr, i, j);
+            }
+        }
+    }
+    private static void swap(int[] arr, int i,int j){
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+    /**
+     * 打印数组
+     * @param arr 需要打印的数组int[]类型
+    */
+    public static void print(int[] arr){
+        System.out.print("[");
+        for(int i=0;i<arr.length-1;i++){
+            System.out.print(arr[i]+",");
+        }
+        System.out.print(arr[arr.length-1]+"]");
+        System.out.print('\n');
+    }
+}
+/*
+javadoc -encoding utf-8 -d myhelp ArrayTools.java //javadoc命令用于生成文档-d myhelp表示生成的文档存在于myhelp文件夹下，使用时请打开myhelp文件夹下的index.html文件
+正在加载源文件ArrayTools.java...
+正在构造 Javadoc 信息...
+正在创建目标目录: "myhelp\"
+标准 Doclet 版本 1.8.0_201
+正在构建所有程序包和类的树...
+正在生成myhelp\ArrayTools.html...
+正在生成myhelp\package-frame.html...
+正在生成myhelp\package-summary.html...
+正在生成myhelp\package-tree.html...
+正在生成myhelp\constant-values.html...
+正在构建所有程序包和类的索引...
+正在生成myhelp\overview-tree.html...
+正在生成myhelp\index-all.html...
+正在生成myhelp\deprecated-list.html...
+正在构建所有类的索引...
+正在生成myhelp\allclasses-frame.html...
+正在生成myhelp\allclasses-noframe.html...
+正在生成myhelp\index.html...
+正在生成myhelp\help-doc.html...
+*/
+```
+
+```java
+class ArrayToolsDemo6{
+    public static void main(String[] args){
+        int[] arr = {5,4,7,6,9,8,2,1,3,0};
+        ArrayTools.print(arr);
+        ArrayTools.selectSort(arr);
+        ArrayTools.print(arr);        
+    }
+}
+/*
+$ java ArrayToolsDemo6
+[5,4,7,6,9,8,2,1,3,0]
+[0,1,2,3,4,5,6,7,8,9]
+*/
+```
+
 
 # 08_08Java中的单继承
 
