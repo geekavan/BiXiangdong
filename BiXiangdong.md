@@ -52,6 +52,11 @@
     * [一个对象的实例化过程](#09_01_02_03一个对象的实例化过程)
     * [final关键字](#09_04final关键字)
     * [抽象类的特点和细节](#09_05_06_07抽象类的特点和细节)
+    * [接口的定义与实现](#09_09_10接口的定义与实现)
+        * [接口的定义](#09_09接口的定义)
+        * [接口的实现](#09_10接口的实现)
+    * [接口的多实现_接口之间的多继承](#09_11_12接口的多实现_接口之间的多继承)
+
 
 # 02
 
@@ -2114,3 +2119,107 @@ Person p = new Person();
     一般类中不可以定义抽象方法，抽象类中即可以定义抽象方法，又可以定义非抽象方法
     一般类可以被实例化，抽象类不可以被实例化
 
+# 09_09_10接口的定义与实现
+
+### 09_09接口的定义
+
+接口和抽象类很类似，只不过接口中的方法都是抽象的，不可以有非抽象方法；抽象类中既可以有抽象方法，又可以有非抽象方法
+
+接口中成员的修饰符是固定的：
+
+1.成员变量：public static final
+
+2.成员函数：public abstract
+
+不加的话编译器也会自动给你加上
+
+```java
+interface Demo{
+    public static final NUM = 4;
+    public abstract void show();
+}
+```
+
+### 09_10接口的实现
+
+类与类之间可以有继承关系，但是只能单继承；类与接口之间可以有实现关系；接口与接口之间可以有继承关系，并且接口支持多继承
+
+接口不可以被实例化，只有当一个接口中的所有抽象方法均被其子类实现之后该子类才可以被实例化，否则该子类是一个抽象类
+
+```java
+interface Demo{
+    public static final int NUM = 4;
+    public abstract void show1();
+    public abstract void show2();
+}
+class DemoImpl implements Demo{
+    public void show1()
+    {}
+    public void show2()
+    {}
+}
+class InterfaceDemo{
+    public static void main(String[] args){
+        DemoImpl d = new DemoImpl();
+        System.out.println(d.NUM);
+        System.out.println(DemoImpl.NUM);
+        System.out.println(Demo.NUM);
+    }
+}
+/*
+$ java InterfaceDemo
+4
+4
+4
+*/
+```
+
+### 09_11_12接口的多实现_接口之间的多继承
+
+```java
+interface A{
+    public abstract void showA();
+}
+interface B{
+    public abstract void showB();
+}
+interface C extends A,B/*接口的多继承*/{
+    public abstract void showC();
+}
+class Demo implements A,B/*接口的多实现*/{
+    public void showA()
+    {}
+    public void showB()
+    {}
+}
+```
+
+为什么接口可以实现多继承(也是接口可以多实现的原因)，而类不可以多继承？
+
+1.因为类多继承的话可以会出现调用的不确定性，示例程序如下，如果有类C同时继承了类A与类B的话，那么类C对象调用show方法的时候是调用类A的show方法还是类B的show方法呢？所以java不支持多继承(其实有其他的解决方式，使得python等支持多继承)
+
+```java
+class A{
+    void show(){
+    }
+}
+class B{
+    void show(){
+    }
+}
+```
+
+2.但是如果是接口的话就不会出现调用的不确定性，示例如下，如果有接口C同时继承了接口A与接口B，那么有类D实现了接口C，类D对象调用show方法的时候也根本不会出现调用的不确定性，他只会老老实实地调用类D中show的实现方法。
+
+```java
+interface A{
+    void show();
+}
+interface B{
+    void show();
+}
+```
+
+概括：
+
+接口的多继承与多实现并不会使程序出现调用的不确定性
