@@ -57,7 +57,13 @@
         * [接口的实现](#09_10接口的实现)
     * [接口的多实现_接口之间的多继承](#09_11_12接口的多实现_接口之间的多继承)
 * [10](#10)
-    * [10_03多态的好处](#10_03多态的好处)
+    * [多态的好处](#10_03多态的好处)
+    * [多态转型](#10_05_06多态转型)
+    * [多态下的成员变量_成员函数非静态_静态函数](#10_08_09_10多态下的成员变量_成员函数非静态_静态函数)
+        * [多态下的成员变量](#10_08多态下的成员变量)
+        * [多态下的成员函数非静态](#10_09多态下的成员函数非静态)
+    
+)
 
 # 02
 
@@ -2358,3 +2364,138 @@ $ java AlgorithmsSort
 
 3.我们所用的showS方法去打印一个Student类的数组，但是如何打印应该是Student类最清楚，也就是说打印的方法应该封装到Student类之中，但是要是打印一堆类，也就是上述代码中的一个数组的类该怎么封装到Student类之中呢？
 
+# 10_05_06多态转型
+
+```java
+class 毕姥爷{
+    void 讲课(){
+        System.out.println("管理");
+    }
+    void 钓鱼(){
+        System.out.println("钓鱼");
+    }
+}
+class 毕老师 extends 毕姥爷{
+    void 讲课(){
+        System.out.println("讲课");
+    }
+    void 看电影(){
+        System.out.println("看电影");
+    }
+}
+class DuoTaiDemo{
+    public static void main(String[] args){
+        毕姥爷 b = new 毕老师();//向上转型，使得屏蔽了子类(或实现类)的特有方法
+        b.讲课();//但是至始至终堆内存中只有一个对象毕老师，所以调用的是毕老师的讲课方法
+        b.钓鱼();
+        //b.看电影();//毕老师已经化妆成为毕姥爷，根本没有看电影方法
+        /*
+        $ javac -encoding utf-8 DuoTaiDemo.java
+        DuoTaiDemo.java:22: 错误: 找不到符号
+                b.看电影();
+                 ^
+        符号:   方法 看电影()
+        位置: 类型为毕姥爷的变量 b
+      1 个错误
+        */
+        毕老师 bb = (毕老师)b;//向下转型，使得可以调用子类(或实现类)的特有方法
+        bb.看电影();
+    }
+}
+/*
+$ javac -encoding utf-8 DuoTaiDemo.java
+$ java DuoTaiDemo
+讲课
+钓鱼
+看电影
+*/
+```
+
+# 10_08_09_10多态下的成员变量_成员函数(非静态)_静态函数
+
+### 10_08多态下的成员变量
+
+编译时：参考引用变量所属类的成员变量，有则编译通过，无则编译失败
+运行时：参考引用变量所属类的成员变量，输出引用变量所属类的成员变量
+简单说：编译看等号左边，运行也看等号左边
+
+```java
+class Fu{
+    String name="Fu";
+}
+class Zi extends Fu{
+    String name="Zi";
+
+}
+class DuoTaiDemo2{
+    public static void main(String[] args){
+        Fu f = new Zi();
+        System.out.println(f.name);
+    }
+}
+/*
+$ java DuoTaiDemo2
+Fu
+*/
+```
+
+### 10_09多态下的成员函数非静态
+
+编译时：参考引用变量所属类的成员函数，有则编译通过，无则编译失败
+运行时：调用对象所属类的成员函数
+简单说：编译看左边，运行看右边
+
+```java
+class Fu{
+    public void show(){
+        System.out.println("Fu show");
+    }
+}
+class Zi extends Fu{
+    public void show(){
+        System.out.println("Zi show");
+    }
+}
+class DuoTaiDemo3{
+    public static void main(String[] args){
+        Fu f = new Zi();
+        f.show();
+    }
+}
+/*
+$ java DuoTaiDemo3
+Zi show
+*/
+```
+
+### 10_10多态下的静态函数
+
+编译时：看引用变量所属类的静态成员函数，有则编译通过，无则编译失败
+运行时：输出引用变量所属类的静态成员函数
+简单说：编译看左边，运行也看左边
+注意：其实一般说是对象的多态性，像静态函数的话，没必要创建对象去调用，也就没有调用的相关问题
+
+```java
+class Fu{
+    public static void show(){
+        System.out.println("Fu show");
+    }
+}
+class Zi extends Fu{
+    public static void show(){
+        System.out.println("Zi show");
+    }
+}
+class DuoTaiDemo4{
+    public static void main(String[] args){
+        //Fu.show();
+        //Zi.show();
+        Fu f = new Zi();
+        f.show();
+    }
+}
+/*
+$ java DuoTaiDemo4
+Fu show
+*/
+```
