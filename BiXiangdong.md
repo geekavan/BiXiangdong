@@ -2285,9 +2285,11 @@ class AlgorithmsSort{
         }
     }
     public static void main(String[] args){
-        int[] arr = {9,8,7,6,3,2,5,4,1};
+        Integer[] arr = {9,8,7,6,3,2,5,4,1,10,11,12,13,15,14,19,17,18,16};
+        show(arr);
         selectSort(arr);
         assert isSorted(arr);
+        show(arr);
     }
 }
 ```
