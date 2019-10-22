@@ -56,7 +56,8 @@
         * [接口的定义](#09_09接口的定义)
         * [接口的实现](#09_10接口的实现)
     * [接口的多实现_接口之间的多继承](#09_11_12接口的多实现_接口之间的多继承)
-
+* [10](#10)
+    * [10_03多态的好处](#10_03多态的好处)
 
 # 02
 
@@ -2223,3 +2224,135 @@ interface B{
 概括：
 
 接口的多继承与多实现并不会使程序出现调用的不确定性
+
+# 10
+
+# 10_03多态的好处
+
+何为多态？
+
+    一个对象，两种形态，如：
+
+    动物 kitty = new 猫();
+
+    其中：
+
+    ```java
+    class 动物{}
+    class 猫 extends 动物{}
+    ```
+
+    猫类对象kitty既有猫类特征，又具备动物类特征
+
+
+多态的代码体现
+
+    父类类型(或接口类型)引用变量可以指向其子类(或其实现类)的对象
+
+多态的好处
+
+    提高了代码的可扩展性，前期的代码可以使用后期的内容
+
+多态好处演示示例：
+
+前期的代码：
+
+```java
+class AlgorithmsSort{
+    public static void exch(Comparable[] a, int i, int j){
+        Comparable temp = a[i];
+        a[i] = a[j];
+        a[j] = temp;
+    }
+    public static boolean less(Comparable i, Comparable j){
+        return i.compareTo(j)<0;
+    }
+    public static boolean isSorted(Comparable[] a){
+        for(int i=0;i<a.length-1;i++){
+            if(!less(a[i],a[i+1]))
+                return false;
+        }
+        return true;
+    }
+    public static void selectSort(Comparable[] a){
+        int minIndex = 0;
+        for(int i=0;i<a.length;i++){
+            for(int j=i;j<a.length;j++){
+                if(!less(a[i],a[j]))
+                    minIndex = j;
+            }
+            exch(a, i, minIndex);
+        }
+    }
+    public static void main(String[] args){
+        int[] arr = {9,8,7,6,3,2,5,4,1};
+        selectSort(arr);
+        assert isSorted(arr);
+    }
+}
+```
+
+后期的代码，后期加入了Student类
+
+```java
+class Student implements Comparable{
+    private final String name;
+    private final int grade;
+    Student(String name, int grade){
+        this.name=name;
+        this.grade=grade;
+    }
+    public String getName(){return this.name;}
+    public int getGrade(){return this.grade;}
+    public int compareTo(Student that){
+        if(this.grade>that.grade) return 1;
+        if(this.grade<that.grdee) return -1;
+        return 0;
+    }
+}
+```
+
+后期的测试代码变为：
+
+```java
+    public static void main(String[] args){
+        // Integer[] arr = {9,8,7,6,3,2,5,4,1,10,11,12,13,15,14,19,17,18,16};
+        // show(arr);
+        // selectSort(arr);
+        // assert isSorted(arr);
+        // show(arr);
+
+        Student[] s = new Student[7];
+        s[0] = new Student("张十五", 15);        
+        s[1] = new Student("李六五", 65);
+        s[2] = new Student("王三七", 37);
+        s[3] = new Student("赵八九", 89);
+        s[4] = new Student("何四七", 47);        
+        s[5] = new Student("余五五", 55);        
+        s[6] = new Student("廖二三", 23);
+        selectSort(s);
+        showS(s);
+    }
+    public static void showS(Student[] s){
+        for(int i=0;i<s.length;i++){
+            if(i==(s.length-1)){
+                System.out.print(s[i].getName()+":"+s[i].getGrade());
+                continue;
+                }
+            System.out.print(s[i].getName()+":"+s[i].getGrade()+",");
+        }
+    }
+/*
+$ java AlgorithmsSort
+张十五:15,廖二三:23,王三七:37,何四七:47,余五五:55,李六五:65,赵八九:89
+*/
+```
+
+点评：
+
+1.后期的Student类实现了Comparable接口，使得后期的Student类可以使用前期定义的selectSort方法，这是由多态特性提供支持的
+
+2.测试代码(main函数部分)其实和AlgorithmsSort类无关，应该抽离
+
+3.我们所用的showS方法去打印一个Student类的数组，但是如何打印应该是Student类最清楚，也就是说打印的方法应该封装到Student类之中，但是要是打印一堆类，也就是上述代码中的一个数组的类该怎么封装到Student类之中呢？
+
