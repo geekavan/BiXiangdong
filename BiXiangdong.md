@@ -2514,3 +2514,20 @@ Fu show
 1.多态下成员变量与静态函数在调用时，编译与运行看的都是等号左边，
 
 2.多态下非静态成员函数在调用时，编译看的是等号左边，运行看的是等号右边
+
+# 内部类
+
+```java
+class Outer{
+    class Inner{
+    }
+}
+class InnerClassDemo{
+    public static void main(String[] args){
+    }
+}
+```
+
+编译后生成的.class文件
+
+![内部类编译后生成的.class文件]()
