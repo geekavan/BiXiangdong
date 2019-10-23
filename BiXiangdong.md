@@ -64,6 +64,11 @@
         * [多态下的成员函数非静态](#10_09多态下的成员函数非静态)
         * [多态下的静态函数](#10_10多态下的静态函数)
         * [总结](#总结)
+    * [内部类概述](#10_11内部类概述)
+        * [内部类编译后生成的.class文件](#内部类编译后生成的.class文件)
+        * [内部类访问的特点](#内部类访问的特点)
+        * [内部类修饰符](#10_12内部类修饰符)
+        * [内部类细节](#10_13内部类细节)
 
 # 02
 
@@ -2515,7 +2520,9 @@ Fu show
 
 2.多态下非静态成员函数在调用时，编译看的是等号左边，运行看的是等号右边
 
-# 内部类
+# 10_11内部类概述
+
+### 内部类编译后生成的.class文件
 
 ```java
 class Outer{
@@ -2531,4 +2538,128 @@ class InnerClassDemo{
 编译后生成的.class文件
 
 ![内部类编译后生成的.class文件](https://github.com/geekavan/BiXiangdong/blob/master/%E5%86%85%E9%83%A8%E7%B1%BB%E7%BC%96%E8%AF%91%E5%90%8E%E7%94%9F%E6%88%90%E7%9A%84.class%E6%96%87%E4%BB%B6.png)
+
+注意内部类生成的文件为Outer$Inner.class
+
+### 内部类访问的特点
+
+内部类可以直接访问外部类的成员
+
+外部类若想访问内部类的成员，需要建立内部类对象
+
+```java
+class Outer{
+    private int num = 3;
+    class Inner{
+        void show(){
+            System.out.println("num......"+num);//内部类可以直接访问外部类的成员
+        }
+    }
+    public void method(){
+        Inner in = new Inner();//外部类若想访问内部类的成员，需要建立内部类对象
+        in.show();
+    }
+}
+class InnerClassDemo2{
+    public static void main(String[] args){
+    }
+}
+```
+
+### 10_12内部类修饰符
+
+1.建立内部类(非静态)对象访问内部类成员(非静态)：
+
+```java
+class Outer{
+    private int num = 4;
+    class Inner{
+        public void show(){
+            System.out.println("show run ..."+num);
+        }
+    }
+}
+class InnerClassDemo121{
+    public static void main(String[] args){
+        /*Outer.Inner指明是Outer类的内部类Inner类类型的引用变量，
+        因为内部类Inner相当于外部类Outer的成员，所以要建立对象访问(因为非静态)，
+        因为要访问的是Inner类的成员，所以也需要建立内部类Inner类的对象
+        */
+        Outer.Inner in = new Outer().new Inner();
+        in.show();
+    }
+}
+```
+
+2.建立内部类(静态)对象，访问内部类成员(非静态)以及访问静态内部类静态成员
+
+```java
+class Outer{
+    private static int  num = 4;
+    static class Inner{
+        public void show(){
+            System.out.println("show run ..."+num);
+        }
+        public static void method(){
+            System.out.println("method run ..."+num);
+        }
+    }
+}
+class InnerClassDemo122{
+    public static void main(String[] args){
+        /*由于内部类Inner类是静态的，是随着Outer的加载而进入内存的，
+        所以可以直接通过new Outer.Inner();来创建Inner类对象 
+        */
+        Outer.Inner in = new Outer.Inner();
+        in.show();
+
+        /*访问静态内部类静态成员可以直接使用
+        外部类.内部类.静态成员 
+        格式
+        */
+        Outer.Inner.method();
+    }
+}
+/*
+$ java InnerClassDemo122
+show run ...4
+method run ...4
+*/
+```
+
+3.如果内部类成员是静态的，那么该内部类也必须是静态的
+
+其实这一点很好理解，因为如果内部类是静态的，那么意味着该内部类可以使用类名直接调用，而内部类是非静态的，无法通过外部类直接调用
+
+### 10_13内部类细节
+
+```java
+class Outer{
+    int num = 3;
+    class Inner{
+        int num = 4;
+        void show(){
+            int num = 5;
+            System.out.println("num ..."+num);
+            System.out.println("this.num ..."+this.num);
+            System.out.println("Inner.this.num ..."+Inner.this.num);
+            System.out.println("Outer.this.num ..."+Outer.this.num);
+        }
+    }
+}
+class InnerClassDemo13{
+    public static void main(String[] args){
+        Outer.Inner in = new Outer().new Inner();
+        in.show();
+    }
+}
+/*
+$ java InnerClassDemo13
+num ...5
+this.num ...4
+Inner.this.num ...4
+Outer.this.num ...3
+*/
+```
+
 
