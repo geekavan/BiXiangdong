@@ -2662,4 +2662,119 @@ Outer.this.num ...3
 */
 ```
 
+# 10_15_16_17匿名内部类
+
+内部类形式
+
+```java
+interface Demo{
+    public abstract void show();
+}
+class Outer{
+    class Inner{
+        public void show(){
+        }
+    }
+    public void method(){
+        Inner in = new Inner();
+        in.show();
+    }
+}
+class InnerClassDemo15{
+    public static void main(String[] args){
+        new Outer().method();
+    }
+}
+```
+
+匿名内部类形式
+
+```java
+interface Demo{
+    public abstract void show();
+}
+class Outer{
+    //匿名内部类形势下就没有内部类了
+    // class Inner{
+    //     public void show(){
+    //     }
+    // }
+    public void method(){
+        //下面就是匿名内部类，实际上是接口(父类)的实现类(子类)的对象
+        new Demo(){
+            public void show(){}
+        };
+
+        //其调用show方法
+        // new Demo(){
+        //     public void show(){}
+        // }.show();
+    }
+}
+class InnerClassDemo152{
+    public static void main(String[] args){
+        new Outer().method();
+    }
+}
+```
+
+实际上就是创建对象的一种简写格式而已，避免书写接口的实现类，直接在建立接口对象时覆盖接口方法(实际上就是创建了接口的一个实现类的对象)(接口换为抽象类类似)
+
+复习多态
+
+```java
+interface Demo{
+    public abstract void show();
+}
+class Outer{
+    public void method(){
+        Demo d = new Demo(){//相当于对于接口Demo的一个匿名实现类进行了向上转型，就隐藏了
+        //子类(实现类)特有方法，对于方法的多态来说，编译看左边，运行看右边
+        //左边接口Demo中并没有function方法，所以会报错
+            public void show(){}
+            public void function(){}
+        };
+        d.show();
+        d.function();
+    }
+}
+class InnerClassDemo153{
+    public static void main(String[] args){
+        new Outer().method();
+    }
+}
+/*
+$ javac -encoding utf-8 InnerClassDemo153.java
+InnerClassDemo153.java:11: 错误: 找不到符号
+        d.function();
+         ^
+  符号:   方法 function()
+  位置: 类型为Demo的变量 d
+1 个错误
+*/
+```
+
+请查看代码并考虑输出结果
+
+```java
+class InnerClassDemo154{
+    class Inner{}
+    public static void main(String[] args){
+        new Inner();//因为Inner是内部类，相当于InnerClassDemo154类的成员
+        //引用成员时为this.new Inner();但是static方法不能够持有this关键字
+        //所以会报错
+    }
+    public void method(){
+        new Inner();
+    }
+}
+/*
+$ javac -encoding utf-8 InnerClassDemo154.java 
+InnerClassDemo154.java:4: 错误: 无法从静态上下文中引用非静态 变量 this
+        new Inner();
+        ^
+1 个错误
+*/
+```
+
 
