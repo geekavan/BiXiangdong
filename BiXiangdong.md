@@ -74,6 +74,7 @@
     * [异常体系](#11_02异常体系)
     * [异常的抛出](#11_03_04_05异常的抛出)
     * [异常的捕捉](#11_06_07_08异常的捕捉)
+    * [finally](#11_09finally)
 # 02
 
 # github中md编写注意事项
@@ -2980,3 +2981,71 @@ $ java ExceptionDemo08
 索引越界异常
 */
 ```
+
+# 11_09finally
+
+finally一定会(其实也不一定)执行的代码块
+
+```java
+class ExceptionDemo09{
+    static void show(int[] arr, int index) throws ArrayIndexOutOfBoundsException{
+        if(index<0){
+            throw new ArrayIndexOutOfBoundsException("越界啦!");
+        }
+    }
+    public static void main(String[] args){
+        int[] arr = new int[3];
+        try{
+            show(arr, -3);}
+        catch(ArrayIndexOutOfBoundsException e){
+            //处理代码
+            System.out.println("catch");
+            return;
+        }
+        finally{
+            System.out.println("finally");
+        }
+    }
+}
+/*
+$ java ExceptionDemo09
+catch
+finally
+*/
+```
+
+进行下面改动之后，finally就没有执行
+
+```java
+class ExceptionDemo09{
+    static void show(int[] arr, int index) throws ArrayIndexOutOfBoundsException{
+        if(index<0){
+            throw new ArrayIndexOutOfBoundsException("越界啦!");
+        }
+    }
+    public static void main(String[] args){
+        int[] arr = new int[3];
+        try{
+            show(arr, -3);}
+        catch(ArrayIndexOutOfBoundsException e){
+            //处理代码
+            System.out.println("catch");
+            System.exit(0);//退出jvm
+        }
+        finally{
+            System.out.println("finally");
+        }
+    }
+}
+/*
+$ java ExceptionDemo09
+catch
+*/
+```
+
+1.try_catch_finally组合
+
+2.try_catch组合，这时候不需要关闭资源
+
+3.try_finally组合，比较常见，问题本方法中处理不了，但是可能会在try中打开了资源，在抛出异常语句处
+程序就要跳转了，我们必须在本方法内将打开的资源关闭，释放资源
