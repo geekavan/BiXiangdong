@@ -75,6 +75,8 @@
     * [异常的抛出](#11_03_04_05异常的抛出)
     * [异常的捕捉](#11_06_07_08异常的捕捉)
     * [finally](#11_09finally)
+    * [异常的应用](#11_10异常的应用)
+    * [异常的注意事项](#11_11异常的注意事项)
 # 02
 
 # github中md编写注意事项
@@ -3051,3 +3053,140 @@ catch
 
 3.try_finally组合，比较常见，问题本方法中处理不了，但是可能会在try中打开了资源，在抛出异常语句处
 程序就要跳转了，我们必须在本方法内将打开的资源关闭，释放资源
+
+# 11_10异常的应用
+
+建议看本部分视频
+
+我现在有数据，我要将数据添加到数据库之中，调用数据库的addData方法
+
+```java
+void addData(Data d){
+    //连接数据库
+    //添加数据
+    //关闭连接
+}
+```
+
+那么我如果添加失败怎么办？抛出一个异常就好了啊
+
+```java
+void addData(Data d) throws SQLException{
+    //连接数据库
+    //添加数据
+    if(//添加失败)
+        throw new SQLException();
+    //关闭连接
+}
+```
+
+但是这么做合适吗？调用者现在有数据，就是想将这些数据通过你的方法加入到数据库中，你给我来一个这个方法可能出现SQLException异常，调用者可能数据库基本命令都玩不转，怎么知道如何处理该异常呢？怎么处理恐怕还是该函数的编写者最清楚，那么最好还是在添加数据的函数内部将该异常捕捉并处理了
+
+```java
+void addData(Data d){
+    try{
+    //连接数据库
+    //添加数据
+    }
+    catch(SQLException e){
+        //连接失败的处理代码
+    }
+    finally{
+        //关闭连接
+    }
+}
+```
+
+这么做就合适了吗？调用者通过该方法添加数据，但是添加失败了，该方法却没有任何回馈(对于该异常它内部捕捉并进行处理了)，调用者以为添加成功了，但是打开数据库一看，却发现并没有成功，这不太合适，这是对问题进行了隐藏。我们还是要通知调用者出现了异常
+
+```java
+class NoAddException{
+
+}
+void addData(Data d)throws NoAddException/*这称之为异常的转换*/{
+    try{
+    //连接数据库
+    //添加数据
+    }
+    catch(SQLException e){
+        //连接失败的处理代码
+        throw new NoAddException();//这称之为异常的转换
+    }
+    finally{
+        //关闭连接
+    }
+}
+```
+
+那么调用者发现该函数签名中有添加失败异常就可以处理了。该方法告知调用者，该方法可能会添加数据失败，添加数据失败后程序怎么处理的，没告诉你，你也不需要知道
+
+# 11_11异常的注意事项
+
+1.当子类重写父类方法时，该子类的该方法可以抛出的异常类只能是父类该方法抛出的异常类的子类或者子集
+
+2.当子类重写父类方法时，该父类的该方法没有抛出异常，那么该子类的该覆盖方法不可以抛出异常
+
+3.当子类重写父类方法时，该父类的该方法抛出了异常，那么该子类的该覆盖方法可以不抛出异常
+
+为什么呢？示例如下：
+
+```java
+class AException extends Exception{}
+class BException extends AException{}
+class CException extends Exception{}
+class Fu{
+    void show()throws AException{}
+}
+class Zi extends Fu{
+    void show()throws AException{}
+}
+class ExceptionDemo11_11{
+    public static void main(String[] args){
+        method(new Zi());
+    }
+    public static void method(Fu f){
+        try{
+            f.show();
+        }
+        catch(AException a){
+        }
+        finally{}
+    }
+}
+```
+
+在上述程序中，如果Zi类在覆盖Fu类中的show方法时，没有抛出父类该方法抛出的类或其子类，而是抛出了CException类，那么method方法传进来的可以是Fu类或其子类，如果传进来的参数为其子类Zi，那么f.show调用的是子类的show方法，抛出的是CException类，而这个异常类原程序中catch不到，程序就会出错，如下
+
+```java
+class AException extends Exception{}
+class BException extends AException{}
+class CException extends Exception{}
+class Fu{
+    void show()throws AException{}
+}
+class Zi extends Fu{
+    void show()throws CException{}
+}
+class ExceptionDemo11_11_2{
+    public static void main(String[] args){
+        method(new Zi());
+    }
+    public static void method(Fu f){
+        try{
+            f.show();
+        }
+        catch(AException a){
+        }
+        finally{}
+    }
+}
+/*
+$ javac -encoding utf-8 ExceptionDemo11_11_2.java 
+ExceptionDemo11_11_2.java:8: 错误: Zi中的show()无法覆盖Fu中的show()
+    void show()throws CException{}
+         ^
+  被覆盖的方法未抛出CException
+1 个错误
+*/
+```
+
