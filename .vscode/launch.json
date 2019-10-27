@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - ExceptionDemo",
+            "request": "launch",
+            "mainClass": "ExceptionDemo",
+            "projectName": "project_d362ae1b"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - ArrayDemo",
             "request": "launch",
             "mainClass": "ArrayDemo",

@@ -70,7 +70,10 @@
         * [内部类修饰符](#10_12内部类修饰符)
         * [内部类细节](#10_13内部类细节)
         * [匿名内部类](#10_15_16_17匿名内部类)
-
+* [11](#11)
+    * [异常体系](#11_02异常体系)
+    * [异常的抛出](#11_03_04_05异常的抛出)
+    * [异常的捕捉](#11_06_07_08异常的捕捉)
 # 02
 
 # github中md编写注意事项
@@ -2779,4 +2782,201 @@ InnerClassDemo154.java:4: 错误: 无法从静态上下文中引用非静态 变
 */
 ```
 
+# 11
 
+# 11_02异常体系
+
+所有程序的异常类都继承于Throwable类，都具备可抛性
+
+    Throwable——|---Error，一般不可以处理
+               |---Exception，可以处理——|--编译时可以被检测异常
+                                       |--RuntimeException
+
+# 11_03_04_05异常的抛出
+
+```java
+class IDException extends Exception/*继承了异常类Exception，成为异常体系的一员*/{
+    IDException(){}
+    IDException(String s){
+        //super(s);
+        //printStackTrace();
+    }
+}
+
+class Person{
+    String name;//为了节约篇幅，这里不将name设为私有属性，免为其设置set与get方法，本博客多处不将类属性设置为私有
+    private String ID;
+    Person(String name){
+       Person.this.name = name;
+    }
+    public void setID(String ID) throws IDException{/*该方法可能会抛出IDException异常*/
+        String IDtrim = ID.trim();
+        char[] IDCharArray = IDtrim.toCharArray();
+        if(!isIDNumbersRight(IDCharArray))
+            throw new IDException("身份证号码输入错误，请重新输入！");//当身份证号码不符合规范时，抛出IDException异常类对象
+        this.ID = ID;
+    }
+    public String getID(){
+        return this.ID;
+    }
+    private boolean isIDNumbersRight(char[] arr){
+        int[] multiTable = {7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2};
+        if(arr.length!=18)
+            return false;
+        int[] arrInt = new int[18];
+        for(int i=0;i<17;i++){
+            if(!Character.isDigit(arr[i]))
+                return false;
+            arrInt[i] = (int)(arr[i])-(int)('0');
+        }
+        char arr17 = arr[17];
+        if(arr17=='1')
+            arrInt[17] = 12;
+        else if (arr17=='0')
+            arrInt[17] = 11;
+        else if(arr17=='X' || arr17=='x')
+            arrInt[17]=10;
+        else
+            arrInt[17]=(int)(arr[17])-(int)('0');
+        int sum = 0;
+        for(int i=0;i<17;i++){
+            sum += arrInt[i]*multiTable[i];
+        }
+        sum = 12 - (sum%11);
+        if(sum==arrInt[17])
+            return true;
+        else
+            return false;
+    }
+}
+
+class ExceptionDemo03_04_05{
+    public static void main(String[] args)throws IDException{
+        Person x = new Person("小明");
+        //当我要使用Person类中的setID方法时，从方法的签名我就知道该方法可能会抛出IDException的异常
+        //那么当我调用该方法时，我就有两种选择，捕捉或者抛出，这里演示抛出，那么main函数就可能抛出异常
+        //我们要在main函数签名上标识出来，main函数抛给虚拟机
+        x.setID("012345678901234561");//012345678901234560正确的校验码
+    }
+}
+/*
+$ java ExceptionDemo03_04_05
+Exception in thread "main" IDException
+        at Person.setID(ExceptionDemo03_04_05.java:19)
+        at ExceptionDemo03_04_05.main(ExceptionDemo03_04_05.java:62)
+*/
+```
+
+# 11_06_07_08异常的捕捉
+
+```java
+class IDException extends Exception/*继承了异常类Exception，成为异常体系的一员*/{
+    IDException(){}
+    IDException(String s){
+        super(s);
+        printStackTrace();
+    }
+}
+class Person{
+    String name;//为了节约篇幅，这里不将name设为私有属性，免为其设置set与get方法，本博客多处不将类属性设置为私有
+    private String ID;
+    Person(String name){
+       Person.this.name = name;
+    }
+    public void setID(String ID) throws IDException{/*该方法可能会抛出IDException异常*/
+        String IDtrim = ID.trim();
+        char[] IDCharArray = IDtrim.toCharArray();
+        if(!isIDNumbersRight(IDCharArray))
+            throw new IDException("身份证号码输入错误，请重新输入！");//当身份证号码不符合规范时，抛出IDException异常类对象
+        this.ID = ID;
+    }
+    public String getID(){
+        return this.ID;
+    }
+    private boolean isIDNumbersRight(char[] arr){
+        int[] multiTable = {7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2};
+        if(arr.length!=18)
+            return false;
+        int[] arrInt = new int[18];
+        for(int i=0;i<17;i++){
+            if(!Character.isDigit(arr[i]))
+                return false;
+            arrInt[i] = (int)(arr[i])-(int)('0');
+        }
+        char arr17 = arr[17];
+        if(arr17=='1')
+            arrInt[17] = 12;
+        else if (arr17=='0')
+            arrInt[17] = 11;
+        else if(arr17=='X' || arr17=='x')
+            arrInt[17]=10;
+        else
+            arrInt[17]=(int)(arr[17])-(int)('0');
+        int sum = 0;
+        for(int i=0;i<17;i++){
+            sum += arrInt[i]*multiTable[i];
+        }
+        sum = 12 - (sum%11);
+        if(sum==arrInt[17])
+            return true;
+        else
+            return false;
+    }
+}
+class ExceptionDemo{
+    public static void main(String[] args){
+        Person x = new Person("小明");
+        //当我要使用Person类中的setID方法时，从方法的签名我就知道该方法可能会抛出IDException的异常
+        //那么当我调用该方法时，我就有两种选择，捕捉或者抛出，这里先演示捕捉
+        try{
+            x.setID("012345678901234561");//012345678901234560正确的校验码
+        }
+        catch(IDException e){
+            System.out.println("捕捉到异常，此处为处理代码");
+        }
+    }
+}
+/*
+$ java ExceptionDemo
+IDException: 身份证号码输入错误，请重新输入！
+        at Person.setID(ExceptionDemo.java:19)
+        at ExceptionDemo.main(ExceptionDemo.java:62)
+捕捉到异常，此处为处理代码
+*/
+```
+
+多catch情况，当一个函数可能抛出多个异常的时候，就需要我们对每个异常进行针对性的处理，就会出现多个catch的情况，示例程序如下(程序中我们异常类继承的是RuntimeException类，为运行时异常，异常情况其实java都已经考虑到了，我们只是为了示例，才选择此两类异常)：
+
+```java
+public class ExceptionDemo08{
+    public static void main(String[] args){
+        int[] arr = new int[3];
+        try{findNumber(arr, 3);}
+        catch(FuShuIndexException e){
+            System.out.println("负索引异常");
+        }
+        catch(IndexOutOfLengthExcepion e){
+            System.out.println("索引越界异常");
+        }
+    }
+    static int findNumber(int[] arr,int index) throws FuShuIndexException,IndexOutOfLengthExcepion{
+        if(index<0){
+            throw new FuShuIndexException("索引非法！索引不可以小于0");
+        }
+        if(index>=arr.length){
+            throw new IndexOutOfLengthExcepion("索引非法！索引不可以大于或等于数组长度");
+        }
+        return arr[index];
+    }
+}
+class FuShuIndexException extends RuntimeException{
+    FuShuIndexException(String s){super(s);}
+}
+class IndexOutOfLengthExcepion extends RuntimeException{
+    IndexOutOfLengthExcepion(String s){super(s);}
+}
+/*
+$ java ExceptionDemo08
+索引越界异常
+*/
+```
