@@ -77,6 +77,11 @@
     * [finally](#11_09finally)
     * [异常的应用](#11_10异常的应用)
     * [异常的注意事项](#11_11异常的注意事项)
+    * [Object](#11Object)
+        * [equals](#equals)
+        * [hasCode](#hasCode)
+        * [getClass](#getClass)
+        * [toString](#toString)
 # 02
 
 # github中md编写注意事项
@@ -3190,3 +3195,158 @@ ExceptionDemo11_11_2.java:8: 错误: Zi中的show()无法覆盖Fu中的show()
 */
 ```
 
+# 11Object
+
+### equals
+
+Object中的equals方法为：
+
+    public boolean equals(Object obj) {
+        return (this == obj);
+    }
+
+```java
+class Person{
+    private String name;
+    Person(String name){
+        this.name = name;
+    }
+    public boolean equals(Object obj){
+        if(!(obj instanceof Person)){
+            throw new ClassCastException("类型错误");
+        }
+        if(this.name == ((Person)obj).name)
+            return true;
+        return false;
+    }
+}
+class EqualsDemo{
+    public static void main(String[] args){
+        Person p1 = new Person("张三");
+        Person p2 = new Person("张三");
+        System.out.println(p1.equals(p2));
+    }
+}
+/*
+$ java EqualsDemo
+true
+*/
+```
+
+1.上述程序中Person类覆盖了Object类的equals方法，使得年龄相同的两个Person类对象即为相同
+
+2.为什么当被比较的类不是Person不直接返回false而是抛出异常？
+
+    返回false也是可以的，但是不合适。该方法输入一个Person类对象，当该对象与调用该方法的对象的年龄不同时该方法返回false，当该方法传入另一个类类型对象时，返回也是false有点不太合适，有点类似于==符号比较整数与字符串，返回了false一样，所以我们选择抛出异常
+
+3.为什么抛出的是运行时异常，而不是编译时被检测异常？
+
+    1.首先如果抛出的是被检测异常那么方法签名上就应该声明该异常，而该方法是覆盖其父类的方法，而父类该方法上没有该声明，子类没办法声明
+    2.编译时被检测异常意味着要检测并在某个位置处理掉的，但是调用者误用该方法比较两个不同类别的对象，没必要做针对性处理，直接给程序停掉就可以了
+
+4.注意当该方法被重写时，有必要重写hashCode方法，以维护hashCode方法的常规协定，该协定规定相等的对象必须具有相等的哈希码
+
+### hasCode
+
+```java
+class Person{
+    private int age;
+    Person(int age){
+        this.age = age;
+    }
+    public boolean equals(Object obj){
+        if(!(obj instanceof Person))
+            throw new ClassCastException("类型错误");
+        if(this.age==((Person)obj).age)
+            return true;
+        return false;
+    }
+}
+class HashCodeDemo{
+    public static void main(String[] args){
+        Person p1 = new Person(20);
+        Person p2 = new Person(20);
+        System.out.println(p1);
+        System.out.println(p1.hashCode());
+        System.out.println(Integer.toHexString(p1.hashCode()));
+    }
+}
+/*
+$ java HashCodeDemo
+Person@15db9742
+366712642
+15db9742
+*/
+```
+
+1.Person@15db9742中Person为类名，15db9742为对象地址转换而来的哈希码值(16进制)，而对象的hashCode方法可以获得该对象的哈希码值(10进制)，通过Integer.toHexString方法可以将10进制转换为16进制
+
+2.注意当equals方法被重写时，有必要重写hashCode方法，以维护hashCode方法的常规协定，该协定规定相等的对象必须具有相等的哈希码
+
+### getClass
+
+API中Class类的一段原话：Class 类的实例表示正在运行的 Java 应用程序中的类和接口
+
+也就是说任何类或者说接口在Java中也是对象，是Class类的对象，既然Class类是所有类所抽象出来的类，那么它具有哪些属性呢？
+
+1.首先所有类都具有name名字(通过getName方法获取)
+
+2.field字段
+
+3.constructor构造器
+
+4.method方法等等
+
+```java
+class Person{
+    private String name;
+    Person(String name){
+        this.name = name;
+    }
+}
+class GetClassDemo{
+    public static void main(String[] args){
+        Person p1 = new Person("张三");
+        Person p2 = new Person("李四");
+        Class c1 = p1.getClass();//获取了Person.class字节码文件对象
+        Class c2 = p2.getClass();
+        System.out.println(c1==c2);
+        System.out.println(c1.getName());
+        System.out.println(c2.getName());
+    }
+}
+/*
+$ java GetClassDemo
+true
+Person
+Person
+*/
+```
+
+### toString
+
+1.toString方法是将对象的一些信息变为字符串打印出来，当我们打印对象的引用变量的时候，就默认调用了对象的toString方法
+
+2.API中toString方法的一段原文：返回该对象的字符串表示。通常，toString 方法会返回一个“以文本方式表示”此对象的字符串。结果应是一个简明但易于读懂的信息表达式。建议所有子类都重写此方法。 
+
+```java
+class Person{
+    private String name;
+    Person(String name){
+        this.name = name;
+    }
+}
+class ToStringDemo{
+    public static void main(String[] args){
+        Person p = new Person("张三");
+        System.out.println(p);//隐式调用了toString方法
+        System.out.println(p.toString());
+        System.out.println(p.getClass().getName()+"$"+Integer.toHexString(p.hashCode()));
+    }
+}
+/*
+Person@15db9742
+Person@15db9742
+Person$15db9742
+*/
+```
