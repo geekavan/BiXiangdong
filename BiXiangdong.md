@@ -3510,7 +3510,7 @@ $ jar
 
 ```java
 $ jar -cf haha.jar mypack
-//其中c参数表示创建一个新的jar包(.jar文件)或许c代表着create，f代表着要指定压缩后的文件名称(这里指定为haha.jar或许f代表着filename)
+//其中c参数表示创建一个新的.jar文件(或许c代表着create)，f代表着要指定压缩后的文件名称(这里指定为haha.jar或许f代表着filename)
 ```
 
 之后当前工作路径下出现：
