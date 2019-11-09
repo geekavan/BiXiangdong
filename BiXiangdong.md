@@ -86,6 +86,7 @@
 * [12](#12)
     * [包概述](#12_01包概述)
     * [包与包之间的访问与import关键字](#12_02_03包与包之间的访问_import关键字)
+    * [Jar工具](#12_04Jar工具)
 
 # 02
 
@@ -3464,9 +3465,9 @@ DemoA show run !
 */
 ```
 
-# 12_04Jar包
+# 12_04Jar工具
 
-Jar是java的一种压缩(解压缩)工具，类似于2345解压软件，好压软件等等只不过Jar是DOS命令行工具没有图形化界面
+Jar工具是java的一种压缩(解压缩)工具，类似于2345解压软件，好压软件等等只不过Jar是DOS命令行工具没有图形化界面
 
 当你输入jar并回车的时候，会显示出jar的用法
 
@@ -3509,4 +3510,9 @@ $ jar -cf haha.jar mypack
 
 之后当前工作路径下出现：
 
-![jar包](https://github.com/geekavan/BiXiangdong/blob/master/jar%E5%8C%85.png)
+![jar工具](https://github.com/geekavan/BiXiangdong/blob/master/jar%E5%8C%85.png)
+
+这样的话Demo这个类就在haha.jar下的mypack包中，使用的时候就要设置jvm工作路径
+
+![set_classpath]()
+
