@@ -85,7 +85,7 @@
 
 * [12](#12)
     * [包概述](#12_01包概述)
-    * [包与包之间的访问](#12_02包与包之间的访问)
+    * [包与包之间的访问与import关键字](#12_02_03包与包之间的访问_import关键字)
 
 # 02
 
@@ -3394,7 +3394,7 @@ package mypack.hehe.haha.xixi;
 java mypack.hehe.haha.xixi
 ```
 
-# 12_02包与包之间的访问
+# 12_02_03包与包之间的访问_import关键字
 
 1.public与protected关键字用于管理包与包之间的权限，被public关键字修饰的类或方法才可以被包外所访问，被protected关键字修饰的方法可以被包外的子类所使用，不可以被包外的其他类使用
 
@@ -3463,3 +3463,50 @@ $ java mypack.Demo
 DemoA show run !
 */
 ```
+
+# 12_04Jar包
+
+Jar是java的一种压缩(解压缩)工具，类似于2345解压软件，好压软件等等只不过Jar是DOS命令行工具没有图形化界面
+
+当你输入jar并回车的时候，会显示出jar的用法
+
+```java
+$ jar
+用法: jar {ctxui}[vfmn0PMe] [jar-file] [manifest-file] [entry-point] [-C dir] files ...
+选项:
+    -c  创建新档案
+    -t  列出档案目录
+    -x  从档案中提取指定的 (或所有) 文件
+    -u  更新现有档案
+    -v  在标准输出中生成详细输出
+    -f  指定档案文件名
+    -m  包含指定清单文件中的清单信息
+    -n  创建新档案后执行 Pack200 规范化
+    -e  为捆绑到可执行 jar 文件的独立应用程序
+        指定应用程序入口点
+    -0  仅存储; 不使用任何 ZIP 压缩
+    -P  保留文件名中的前导 '/' (绝对路径) 和 ".." (父目录) 组件
+    -M  不创建条目的清单文件
+    -i  为指定的 jar 文件生成索引信息
+    -C  更改为指定的目录并包含以下文件
+如果任何文件为目录, 则对其进行递归处理。
+清单文件名, 档案文件名和入口点名称的指定顺序
+与 'm', 'f' 和 'e' 标记的指定顺序相同。
+
+示例 1: 将两个类文件归档到一个名为 classes.jar 的档案中:
+       jar cvf classes.jar Foo.class Bar.class
+示例 2: 使用现有的清单文件 'mymanifest' 并
+           将 foo/ 目录中的所有文件归档到 'classes.jar' 中:
+       jar cvfm classes.jar mymanifest -C foo/ .
+````
+
+如：我们现在想将mypack这个包(文件夹)压缩为haha.jar文件我们就可以输入：
+
+```java
+$ jar -cf haha.jar mypack
+//其中c参数表示创建一个新的jar包(.jar文件)或许c代表着create，f代表着要指定压缩后的文件名称(这里指定为haha.jar或许f代表着filename)
+```
+
+之后当前工作路径下出现：
+
+![jar包]()
