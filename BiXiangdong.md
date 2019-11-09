@@ -87,6 +87,9 @@
     * [包概述](#12_01包概述)
     * [包与包之间的访问与import关键字](#12_02_03包与包之间的访问_import关键字)
     * [Jar工具](#12_04Jar工具)
+    * [多线程概述](#12_01_02_03_04多线程概述)
+    * [Thread类](#12_05Thread类)
+    * [Thread类中的方法及线程名称](#12_06Thread类中的方法及线程名称)
 
 # 02
 
@@ -3518,3 +3521,284 @@ $ jar -cf haha.jar mypack
 
 ![set_classpath](https://github.com/geekavan/BiXiangdong/blob/master/set_classpath.png)
 
+# 12_01_02_03_04多线程概述
+
+1.进程：正在运行中的程序，如网易云音乐，谷歌浏览器等等，进程意味着在内存中开辟空间
+
+2.线程：正在执行的程序单元，如在网易云音乐听歌是一个线程，在听歌的同时浏览其他的东西也是一个线程，一个进程至少有一个线程，可以有多个线程
+
+3.注意：多线程"看起来"像是同时执行，但是很有可能不是，道理很简单，当只有一个cpu在忙这个进程的时候，所谓的多线程同时执行，只不过是cpu在各个线程之间在做着快速切换罢了，或者说只有一个cpu在忙多个进程的时候，所谓多个进程同时执行，也只不过是cpu在各个进程之间在做快速切换罢了
+
+4.JVM虚拟机在启动的时候就开启了多条线程，比如说一条线程为主线程，用于执行main函数，另一条线程为垃圾回收线程，用于回收内存中的垃圾
+
+5.主线程结束之后，JVM并不结束，示例如下：
+
+```java
+class Demo{
+    public void finalize(){
+        System.out.println("finalize run!");
+    }
+}
+class ThreadDemo12_03{
+    public static void main(String[] args){
+        new Demo();
+        new Demo();
+        new Demo();
+        System.gc();
+        System.out.println("hello world !");
+    }
+}
+/*
+$ java ThreadDemo12_03
+hello world !
+finalize run!
+finalize run!
+*/
+```
+
+其中finalize为Object类中的方法，匿名对象创建之后就会变为垃圾，垃圾回收器会调用此方法进行与垃圾回收相关的操作，我们对此进行覆写，以便知道JVM什么时候进行了垃圾回收或者是否进行了垃圾回收
+
+    protected  void finalize() 
+            当垃圾回收器确定不存在对该对象的更多引用时，由对象的垃圾回收器调用此方法 
+
+由于垃圾回收机制回收的时间是不确定的，我们为了看到一些效果要对其进行强制回收，相关函数如下是位于System类下的静态函数
+
+    static void gc() 
+            运行垃圾回收器 
+
+1.我们看到由于垃圾回收线程与主线程是"同时运行"的两个线程("同时执行"打引号是因为两者其实在微观上并不是同时执行的，同一个cpu怎么会同时执行两个线程呢，只是cpu在两个线程之间进行快速切换而已)，所以虽然垃圾回收器运行语句在主函数输出语句之前，但是主函数输入语句却是先执行了
+
+2.该程序段说明主线程结束之后，JVM并没有结束，此例中看出至少还执行了垃圾回收线程
+
+3.从此例中我们还知道，垃圾回收线程没有执行完(因为还有一个finalize run!没有打印出来)，JVM就结束了
+
+# 12_05Thread类
+
+如何自己创建多线程呢？方式之一为继承Thread类，以下文字来源于JAVA的API文档
+
+创建新执行线程有两种方法。一种方法是将类声明为 Thread 的子类。该子类应重写 Thread 类的 run 方法。接下来可以分配并启动该子类的实例。例如，计算大于某一规定值的质数的线程可以写成： 
+
+
+
+--------------------------------------------------------------------------------
+
+     class PrimeThread extends Thread {
+         long minPrime;
+         PrimeThread(long minPrime) {
+             this.minPrime = minPrime;
+         }
+ 
+         public void run() {
+             // compute primes larger than minPrime
+              . . .
+         }
+     }
+ 
+--------------------------------------------------------------------------------
+
+然后，下列代码会创建并启动一个线程： 
+
+
+     PrimeThread p = new PrimeThread(143);
+     p.start();
+
+看了上述一段之后，我们可能会有问题：
+
+1.为什么非要继承Thread类呢？
+
+    我们要知道线程是由jvm所在的操作系统创建的，那么我们要在windows下java程序中创建多线程的话，难道还要再学习windows的相关知识吗，并不需要，java中已经提供了和底层这些东西打交道的Thread类供我们使用，我们只要使我们的类成为Thread类的子类就可以了
+
+2.我们为什么要覆写run方法？
+
+    我们创建多线程的目的是使多段程序"同时执行"，在主线程中执行的代码要放在main函数中，那么要在其它线程中执行的代码应该放在哪里呢？答案就是run方法中
+
+3.调用run方法与start方法有什么不同？
+
+    我们从API文档中可以清楚地知道，启动线程需要调用start方法，而调用run方法只是相当于调用了一个普通的函数而已，我们在调用start方法的时候，会自动帮我们调用我们复写好的run方法
+
+例子：
+
+```java
+class Demo extends Thread{
+    private String name;
+    Demo(String name){
+        this.name = name;
+    }
+    public void run(){
+        for(int i=0;i<5;i++){
+            System.out.println("name......"+name+i);
+        }
+    }
+}
+class ThreadDemo12_05{
+    public static void main(String[] args){
+        Demo d1 = new Demo("如花");
+        Demo d2 = new Demo("xiaoqiang");
+        d1.start();
+        d2.start();
+        System.out.println("hehehehehehe!");
+    }
+}
+/*
+$ java ThreadDemo12_05
+hehehehehehe!
+name......xiaoqiang0
+name......xiaoqiang1
+name......如花0
+name......xiaoqiang2
+name......如花1
+name......xiaoqiang3
+name......如花2
+name......如花3
+name......如花4
+name......xiaoqiang4
+*/
+/*
+$ java ThreadDemo12_05
+hehehehehehe!
+name......xiaoqiang0
+name......xiaoqiang1
+name......如花0
+name......如花1
+name......xiaoqiang2
+name......如花2
+name......如花3
+name......xiaoqiang3
+name......如花4
+name......xiaoqiang4
+*/
+```
+
+我们看到多次运行的结果并不相同，这就是因为该段程序中包含3个线程，cpu在其间切换的时间不同导致结果不同
+
+# 12_06Thread类中的方法及线程名称
+
+Thread类的构造方法中有：
+
+    Thread(String name) 
+          分配新的 Thread 对象
+
+Thread类的方法中有：
+
+    String getName() 
+          返回该线程的名称 
+
+即线程是有名称的，可以自定义线程的名称，例子如下：
+
+```java
+class Demo extends Thread{
+    private String name;
+    Demo(String name){
+        this.name = name;
+    }
+    public void run(){
+        for(int i=0;i<5;i++){
+            System.out.println("name......"+name+"......"+i+"......"+getName());
+        }
+    }
+}
+class ThreadDemo12_06{
+    public static void main(String[] args){
+        Demo d1 = new Demo("如花");
+        Demo d2 = new Demo("xiaoqiang");
+        d1.start();
+        d2.start();
+        System.out.println("hehehehehehe!");
+    }
+}
+/*
+$ java ThreadDemo12_06
+hehehehehehe!
+name......如花......0......Thread-0
+name......xiaoqiang......0......Thread-1
+name......xiaoqiang......1......Thread-1
+name......如花......1......Thread-0
+name......如花......2......Thread-0
+name......xiaoqiang......2......Thread-1
+name......如花......3......Thread-0
+name......xiaoqiang......3......Thread-1
+name......如花......4......Thread-0
+name......xiaoqiang......4......Thread-1
+*/
+```
+
+我们看到线程不指定名字时，默认名字为Thread-0，Thread-1等等，指定名字的程序段如下
+
+```java
+class Demo extends Thread{
+    Demo(String name){
+        super(name);
+    }
+    public void run(){
+        for(int i=0;i<5;i++){
+            System.out.println(i+"......"+getName());
+        }
+    }
+}
+class ThreadDemo12_06{
+    public static void main(String[] args){
+        Demo d1 = new Demo("如花");
+        Demo d2 = new Demo("xiaoqiang");
+        d1.run();
+        d2.run();
+        System.out.println("hehehehehehe!");
+    }
+}
+/*
+$ java ThreadDemo12_06
+0......如花
+1......如花
+2......如花
+3......如花
+4......如花
+0......xiaoqiang
+1......xiaoqiang
+2......xiaoqiang
+3......xiaoqiang
+4......xiaoqiang
+hehehehehehe!
+*/
+```
+
+我们看到我们指定了线程的名字为"如花"，"xiaoqiang"，我们创建了这两个线程，但是我们并没有启动它们，因为我们执行的是run方法而不是start方法，所以自始至终程序中只有一个主线程，我们通过Thread类的：
+
+    static Thread currentThread() 
+            返回对当前正在执行的线程对象的引用 
+
+currentThread()静态方法就可以获取当前正在执行的线程对象的引用
+
+```java
+class Demo extends Thread{
+    Demo(String name){
+        super(name);
+    }
+    public void run(){
+        for(int i=0;i<5;i++){
+            System.out.println(i+"......"+currentThread().getName());
+        }
+    }
+}
+class ThreadDemo12_06{
+    public static void main(String[] args){
+        Demo d1 = new Demo("如花");
+        Demo d2 = new Demo("xiaoqiang");
+        d1.run();
+        d2.run();
+        System.out.println("hehehehehehe!");
+    }
+}
+/*
+$ java ThreadDemo12_06
+0......main
+1......main  
+2......main  
+3......main  
+4......main  
+0......main  
+1......main  
+2......main  
+3......main  
+4......main  
+hehehehehehe!
+*/
+```
