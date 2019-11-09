@@ -82,6 +82,11 @@
         * [hasCode](#hasCode)
         * [getClass](#getClass)
         * [toString](#toString)
+
+* [12](#12)
+    * [包概述](#12_01包概述)
+    * [包与包之间的访问](#12_02包与包之间的访问)
+
 # 02
 
 # github中md编写注意事项
@@ -3348,5 +3353,113 @@ class ToStringDemo{
 Person@15db9742
 Person@15db9742
 Person$15db9742
+*/
+```
+
+# 12
+
+# 12_01包概述
+
+包就和windows下的文件夹概念一样，提供了多层的命名空间
+
+```java
+package mypack;
+class PackageDemo{
+    public static void main(String[] args){
+        System.out.println("hello package!");
+    }
+}
+```
+
+上述程序段说明，PackageDemo这个类是存在于mypack这个包下的，而包这个概念在windows下就是文件夹，也就是说PackageDemo这个类文件是(应该是)存放于mypack这个文件夹下的，我们可以编译之后将PackageDemo.class这个类手动放在自己新建的mypack文件夹下，也可以通过java编译器自动完成这个功能，如下
+
+```java
+javac -d . PackageDemo.java//其中-d表示根据程序中包语句的指示生成相应的文件夹，. 符号表示将根据包指示而生成的文件夹放在当前路径下
+```
+
+执行语句变为：
+
+```java
+$ java mypack.PackageDemo//表示执行mypack包下边的PackageDemo.class文件
+hello package!
+```
+
+类似于windows的多级目录，java支持多级包结构，定义，执行类似于：
+
+```java
+package mypack.hehe.haha.xixi;
+```
+
+```java
+java mypack.hehe.haha.xixi
+```
+
+# 12_02包与包之间的访问
+
+1.public与protected关键字用于管理包与包之间的权限，被public关键字修饰的类或方法才可以被包外所访问，被protected关键字修饰的方法可以被包外的子类所使用，不可以被包外的其他类使用
+
+2.public与protected关键字所管理的是包与包之间的权限，在包内两者并没有什么用(除了子类覆盖父类方法，子类该方法权限要大于等于父类方法权限的时候)
+
+```java
+                    public      protected       default     private
+同一类中               ok            ok             ok          ok
+同一包中               ok            ok             ok
+不同包子类中            ok            ok
+不同包中               ok
+```
+
+上表中default指的是默认权限，即没有权限修饰符时候的权限，上表只要记住public与protected只在包之间起作用，在同一个包内不起作用就可以了(除了子类覆盖父类方法的时候)
+
+```java
+package mypack12_02a;
+public class DemoA{
+    public void show(){
+        System.out.println("DemoA show run !");
+    }
+}
+```
+
+如下面的程序，当需要用到上述的DemoA类的时候，需要在DemoA类前加上包的名字，这点很好理解，就比如说我要找毕老师，哪个毕老师啊？传智的毕老师还是央视的毕老师啊？你需要指明，mypack12_02a.就相当于在毕老师前加上限定词---传智的，这样jvm就清晰地知道我们要找的是mypack12_02a包下的(传智的)DemoA这个类(毕老师)
+
+在没有接触到包的概念以前，程序也有默认包，那就是当前工作路径，类都存在于同一个包下，所以使用类的时候前面没有包名
+
+```java
+package mypack;
+public class Demo{
+    public static void main(String[] args){
+        mypack12_02a.DemoA demoa = new mypack12_02a.DemoA();
+        demoa.show();
+    }
+}
+```
+
+上述程序段需要先编译DemoA这个类，没有包的概念以前，我们直接可以编译Demo这个类，当用到DemoA类的时候，jvm在本工作路径下找DemoA.class文件，当没有找到的时候会寻找DemoA.java这个文件进行编译，但是有了包的概念之后，DemoA在包mypack12_02a下，jvm会在这个包下寻找DemoA.class这个文件，当不存在时也会在这个包下寻找DemoA.java文件，如果均没有，那么就会报错
+
+```java
+$ javac -d . Demo.java
+Demo.java:4: 错误: 程序包mypack12_02a不存在
+        mypack12_02a.DemoA demoa = new mypack12_02a.DemoA();
+                    ^
+Demo.java:4: 错误: 程序包mypack12_02a不存在
+        mypack12_02a.DemoA demoa = new mypack12_02a.DemoA();
+                                                   ^
+2 个错误
+```
+
+这么看有了包以后，类的调用都变得复杂了，为了使调用简单，java给出了import关键字，它用于**导入类**
+
+```java
+package mypack;
+import mypack12_02a.DemoA;
+public class Demo{
+    public static void main(String[] args){
+        DemoA demoa = new DemoA();
+        demoa.show();
+    }
+}
+/*
+$ javac -d . Demo.java
+$ java mypack.Demo
+DemoA show run !
 */
 ```
