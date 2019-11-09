@@ -3510,9 +3510,9 @@ $ jar -cf haha.jar mypack
 
 之后当前工作路径下出现：
 
-![jar工具](https://github.com/geekavan/BiXiangdong/blob/master/jar%E5%8C%85.png)
+![jar工具](https://github.com/geekavan/BiXiangdong/blob/master/jar%E5%B7%A5%E5%85%B7.png)
 
 这样的话Demo这个类就在haha.jar下的mypack包中，使用的时候就要设置jvm工作路径
 
-![set_classpath]()
+![set_classpath](https://github.com/geekavan/BiXiangdong/blob/master/set_classpath.png)
 
