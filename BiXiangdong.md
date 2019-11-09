@@ -87,6 +87,9 @@
     * [包概述](#12_01包概述)
     * [包与包之间的访问与import关键字](#12_02_03包与包之间的访问_import关键字)
     * [Jar工具](#12_04Jar工具)
+    * [练习4](#练习4_01)
+        * [习题7](#习题7)
+        * [习题8](#习题8)
     * [多线程概述](#12_01_02_03_04多线程概述)
     * [Thread类](#12_05Thread类)
     * [Thread类中的方法及线程名称](#12_06Thread类中的方法及线程名称)
@@ -2651,7 +2654,7 @@ method run ...4
 
 3.如果内部类成员是静态的，那么该内部类也必须是静态的
 
-其实这一点很好理解，因为如果内部类是静态的，那么意味着该内部类可以使用类名直接调用，而内部类是非静态的，无法通过外部类直接调用
+其实这一点很好理解，因为如果内部类成员是静态的，那么意味着该内部类成员可以使用内部类类名直接调用，而内部类是非静态的，无法通过外部类直接调用
 
 ### 10_13内部类细节
 
@@ -3521,6 +3524,81 @@ $ jar -cf haha.jar mypack
 
 ![set_classpath](https://github.com/geekavan/BiXiangdong/blob/master/set_classpath.png)
 
+# 练习4_01
+
+### 习题7
+
+```java
+interface Inter{
+    public void show(int a, int b);
+    public void func();
+}
+class Demo12_4_01_07{
+    public static void main(String[] args){
+        //补足代码，调用两个函数，要求使用匿名内部类
+    }
+}
+```
+
+```java
+interface Inter{
+    public void show(int a, int b);
+    public void func();
+}
+class Demo12_4_01_07{
+    public static void main(String[] args){
+        //补足代码，调用两个函数，要求使用匿名内部类
+        new Inter(){
+            public void show(int a, int b){
+                System.out.println(a+"......"+b);
+            }
+            public void func(){
+                System.out.println("func run !");
+            }
+        }.show(1,2);
+        new Inter(){
+            public void show(int a, int b){
+                System.out.println(a+"......"+b);
+            }
+            public void func(){
+                System.out.println("func run !");
+            }
+        }.func();
+    }
+}
+```
+
+思路(或者说是记忆窍门)：
+
+1.首先new Inter()后面肯定不能加分号，加了分号就是创建接口对象类，而接口不能创建对象
+
+2.所以加了个{}，在其中覆写show方法与func方法
+
+3.之后的new Inter(){}的一个整体就是一个对象了，该对象是Inter类的一个实现类的对象，它若想调用某方法直接.方法名就可以了
+
+### 习题8
+
+```java
+class TD{
+    int y = 3;
+    class Inter{
+        static int y = 4;
+        void show(){
+            System.out.println(y);
+        }
+    }
+}
+class Demo{
+    public static void main(String[] args){
+        TD.Inter ti = new TD().new Inter();
+        ti.show();
+    }
+}
+```
+
+答案：编译会失败，因为内部类中若想定义静态成员，内部类必须也是静态的
+
+
 # 12_01_02_03_04多线程概述
 
 1.进程：正在进行中的程序，如网易云音乐，谷歌浏览器等等，进程意味着在内存中开辟空间
@@ -3802,3 +3880,5 @@ $ java ThreadDemo12_06
 hehehehehehe!
 */
 ```
+
+我们看到自始至终程序中只有main线程
