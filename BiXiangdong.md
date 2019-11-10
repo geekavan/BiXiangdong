@@ -90,6 +90,7 @@
     * [练习4](#练习4_01)
         * [习题7](#习题7)
         * [习题8](#习题8)
+        * [习题9](#习题9)
     * [多线程概述](#12_01_02_03_04多线程概述)
     * [Thread类](#12_05Thread类)
     * [Thread类中的方法及线程名称](#12_06Thread类中的方法及线程名称)
@@ -3598,6 +3599,126 @@ class Demo{
 
 答案：编译会失败，因为内部类中若想定义静态成员，内部类必须也是静态的
 
+### 习题9
+
+在做习题9之前，请研读以下几个程序段
+
+程序段1
+
+```java
+class Demo12_4_01_09{
+    public static void main(String[] args){
+        show(4);
+    }
+    static void show(double a){
+        System.out.println("double");
+    }
+    static void show(int a){
+        System.out.println("int");
+    }
+}
+/*
+$ java Demo12_4_01_09
+int
+*/
+```
+
+程序段2
+
+```java
+class Demo12_4_01_09{
+    public static void main(String[] args){
+        show(4.0);
+    }
+    static void show(double a){
+        System.out.println("double");
+    }
+    static void show(int a){
+        System.out.println("int");
+    }
+}
+/*
+$ java Demo12_4_01_09
+double
+*/
+```
+
+程序段3
+
+```java
+class Demo12_4_01_09{
+    public static void main(String[] args){
+        show(4);
+    }
+    static void show(double a){
+        System.out.println("double");
+    }
+    // static void show(int a){
+    //     System.out.println("int");
+    // }
+}
+/*
+$ java Demo12_4_01_09
+double
+*/
+```
+
+程序段4
+
+```java
+class Demo12_4_01_09{
+    public static void main(String[] args){
+        show(4.0);
+    }
+    // static void show(double a){
+    //     System.out.println("double");
+    // }
+    static void show(int a){
+        System.out.println("int");
+    }
+}
+/*
+$ javac Demo12_4_01_09.java
+Demo12_4_01_09.java:3: 错误: 不兼容的类型: 从double转换到int可能会有损失
+        show(4.0);
+             ^
+注: 某些消息已经过简化; 请使用 -Xdiags:verbose 重新编译以获得完整输出
+1 个错误
+*/
+```
+
+读完上述程序段请思考：
+
+我们知道当调用子类对象的方法时，会先在子类对象中找，如果子类对象中没有则在其父类中寻找，那么我将show(int a)定义在父类中，show(double a)定义在子类中，调用时show(4)，那么会调用哪一个方法呢？
+
+1.如果考虑子类里相当于有父类的全部方法，就跟写在子类里一样，那么肯定调用的就是show(int a)
+
+2.如果先在子类中找，子类没有的话再在其父类中找，可能就会调用show(double a)
+
+3.其实写到这里，博主已经考虑明白了，如果2成立的话就相当于子类覆盖了父类方法啊，但是覆盖父类方法要求方法签名一致，包括：返回值类型，方法名称，参数类型，参数个数，所以说肯定是调用了show(int a)，程序示例如下：
+
+```java
+class Demo12_4_01_09{
+    public static void main(String[] args){
+        Zi.show(4);
+    }
+}
+class Fu{
+    static void show(int a){
+        System.out.println("int");
+    }
+}
+class Zi extends Fu{
+    static void show(double a){
+        System.out.println("double");
+    }
+
+}
+/*
+$ java Demo12_4_01_09
+int
+*/
+```
 
 # 12_01_02_03_04多线程概述
 
