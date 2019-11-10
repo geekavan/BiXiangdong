@@ -91,6 +91,7 @@
         * [习题7](#习题7)
         * [习题8](#习题8)
         * [习题9](#习题9)
+        * [习题11](#习题11)
     * [多线程概述](#12_01_02_03_04多线程概述)
     * [Thread类](#12_05Thread类)
     * [Thread类中的方法及线程名称](#12_06Thread类中的方法及线程名称)
@@ -3719,6 +3720,56 @@ $ java Demo12_4_01_09
 int
 */
 ```
+
+习题9题目：
+
+写出下列选项能否在Demo的子类中存在，并写出错误理由
+
+```java
+class Demo{
+    int show(int a, int b){return 0;}
+}
+A public int show(int a, int b){return 0;}//可以，覆盖父类方法
+B private int show(int a, int b){return 0;}//不可以，覆盖父类方法时，子类该方法权限要大于等于父类该方法权限
+C private int show(int a, long b){return 0;}//可以，参数类型不同，不是覆盖，这个是子类特有方法
+D public short show(int a, int b){return 0;}//不可以，会出现调用的不确定性
+E static int show(int a, int b){return 0;}//不可以静态方法只能覆盖静态方法
+```
+
+### 习题11
+
+```java
+class Fu{
+    int num = 4;
+    void show(){
+        System.out.println("Fu show run !");
+    }
+}
+class Zi extends Fu{
+    int num = 5;
+    void show(){
+        System.out.println("Zi show run !");
+    }
+}
+class Demo{
+    public static void main(String[] args){
+        Fu f = new Zi();
+        Zi z = new Zi();
+        System.out.println(f.num);//4
+        System.out.println(z.num);//5
+        f.show();//Zi show run !
+        z.show();//Zi show run !
+    }
+}
+```
+
+总结：
+
+1.对于成员变量来说，编译和运行都看左边 参考:[多态下的成员变量](#10_08多态下的成员变量)
+
+2.对于成员函数(非静态)来说，编译看左边，运行看右边 参考:[多态下的成员函数非静态](#10_09多态下的成员函数非静态)
+
+3.补充：对于静态成员函数来说，编译看左边，运行看左边 参考:[多态下的静态函数](#10_10多态下的静态函数)
 
 # 12_01_02_03_04多线程概述
 
