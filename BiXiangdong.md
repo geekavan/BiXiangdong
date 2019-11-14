@@ -112,6 +112,7 @@
     * [同步函数_验证同步函数的锁_验证静态同步函数的锁](#13_18_19_20同步函数_验证同步函数的锁_验证静态同步函数的锁)
         * [代码段1_非静态同步方法持有的锁为this](#代码段1_非静态同步方法持有的锁为this)
         * [代码段2_静态方法持有的锁为静态方法所属的字节码文件对象](#代码段2_静态方法持有的锁为静态方法所属的字节码文件对象)
+        * [代码段3_检验](#代码段3_检验)
 
 # 02
 
@@ -4764,3 +4765,55 @@ Thread-1......1
 输出特点:线程安全
 
 原因:静态方法所有的锁为其所属的字节码文件对象，而代码中同步代码块的锁也是该字节码文件对象，操作共享数据的同步代码段持有同一把锁，所以线程安全了
+
+### 代码段3_检验
+
+```java
+class Window implements Runnable{
+    private static int  TicketNum = 100;
+    public boolean flag = true;
+    public void run(){
+        if(flag)
+            while(true)
+                synSell();
+        else{
+            while(true){
+                synchronized(this){
+                    if(TicketNum>0){
+                        try{Thread.sleep(10);}catch(InterruptedException e){}
+                        System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
+                    }
+                }
+            }
+        }
+    }
+    public synchronized static void synSell(){
+            if(TicketNum>0){
+                try{Thread.sleep(10);}catch(InterruptedException e){}
+                System.out.println(Thread.currentThread().getName()+"...sell..."+TicketNum--);
+
+            }
+    }
+}
+class TicketDemo18_19_20_3{
+    public static void main(String[] args){
+        Window w0 = new Window();
+        Thread t0 = new Thread(w0);
+        Thread t1 = new Thread(w0);
+        t0.start();
+        try{Thread.sleep(20);}catch(InterruptedException e){}
+        w0.flag = false;
+        t1.start();
+    }
+}
+/*部分输出
+Thread-0...sell...3
+Thread-1......2
+Thread-0...sell...1
+Thread-1......0
+*/
+```
+
+输出特点:打印出0号票，线程不安全
+
+原因:静态方法所有的锁为其所属的字节码文件对象，而代码中同步代码块的锁为this，操作共享数据的同步代码段持有不同的锁，所以线程不安全
