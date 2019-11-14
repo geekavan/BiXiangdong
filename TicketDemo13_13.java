@@ -4,14 +4,16 @@ class Window implements Runnable{
         sell();
     }
     public void sell(){
-        while(TicketNum>0){
-            try{
-                Thread.sleep(10);
+        while(true){
+            if(TicketNum>0){
+                try{
+                    Thread.sleep(10);
+                }
+                catch(InterruptedException e){
+                    System.out.println("现在我也不会处理啊，随便写写吧");
+                }
+                System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
             }
-            catch(InterruptedException e){
-                System.out.println("现在我也不会处理啊，随便写写吧");
-            }
-            System.out.println(TicketNum--);
         }
     }
 }

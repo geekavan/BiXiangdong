@@ -1,18 +1,15 @@
 class Window implements Runnable{
     private int TicketNum = 100;
     public void run(){
-        sell();
+        while(true){
+            synSell();
+        }
     }
-    public synchronized void sell(){
-            while(TicketNum>0){
-                try{
-                    Thread.sleep(10);
-                }
-                catch(InterruptedException e){
-                    System.out.println("现在我也不会处理啊，随便写写吧");
-                }
-                System.out.println(TicketNum--);
-            }
+    public synchronized void synSell(){
+        if(TicketNum>0){
+            try{Thread.sleep(10);}catch(InterruptedException e){}
+            System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
+        }
     }
 }
 class TicketDemo18_19_20{

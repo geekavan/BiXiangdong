@@ -109,6 +109,9 @@
     * [线程安全问题](#13_13线程安全问题)
     * [线程安全问题产生的原因](#13_14线程安全问题产生的原因)
     * [同步代码块_同步的好处和弊端_同步的前提](#13_15_16_17同步代码块_同步的好处和弊端_同步的前提)
+    * [同步函数_验证同步函数的锁_验证静态同步函数的锁](#13_18_19_20同步函数_验证同步函数的锁_验证静态同步函数的锁)
+        * [代码段1_非静态同步方法持有的锁为this](#代码段1_非静态同步方法持有的锁为this)
+        * [代码段2_静态方法持有的锁为静态方法所属的字节码文件对象](#代码段2_静态方法持有的锁为静态方法所属的字节码文件对象)
 
 # 02
 
@@ -4261,8 +4264,10 @@ class Window extends Thread{
         sell();
     }
     public void sell(){
-        while(TicketNum>0){
-            System.out.println(TicketNum--);
+        while(true){
+            if(TicketNum>0){
+                System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
+            }
         }
     }
 }
@@ -4276,6 +4281,14 @@ class TicketDemo{
         w2.start();
     }
 }
+/*部分输出
+Thread-0......4
+Thread-1......6
+Thread-1......2
+Thread-1......1
+Thread-2......7
+Thread-0......3
+*/
 ```
 
 我们看到通过继承Thread类实现多线程方式的步骤为:
@@ -4303,8 +4316,10 @@ class Window implements Runnable{
         sell();
     }
     public void sell(){
-        while(TicketNum>0){
-            System.out.println(TicketNum--);
+        while(true){
+            if(TicketNum>0){
+                System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
+            }
         }
     }
 }
@@ -4319,6 +4334,15 @@ class TicketDemo2{
         t2.start();
     }
 }
+/*部分输出
+Thread-1......8
+Thread-2......5
+Thread-2......3
+Thread-0......6
+Thread-2......2
+Thread-1......4
+Thread-0......1
+*/
 ```
 
 我们看到通过Runnable接口实现多线程方式的步骤为:
@@ -4343,7 +4367,7 @@ class TicketDemo2{
 
 # 13_13线程安全问题
 
-在13_12节的程序中，如果当TicketNum=1的时候，线程0执行到while(TicketNum>0)并且进入循环体内，此时，线程1获得cpu的执行权，当线程1执行到while(TicketNum>0)并且进入循环体内，此时，线程2获得cpu的执行权，当线程2执行到while(TicketNum>0)并且进入循环体内
+在13_12节的程序中，如果当TicketNum=1的时候，线程0执行到if(TicketNum>0)并且进入if代码块内，此时，线程1获得cpu的执行权，当线程1执行到if(TicketNum>0)并且进入if代码块内，此时，线程2获得cpu的执行权，当线程2执行到if(TicketNum>0)并且进入if代码块内
 
 此时，线程0获得cpu的执行权，输出堆内存中TicketNum此时的值1，并且将其减去1，赋值为0，之后线程1获得cpu的执行权，输出堆内存中TicketNum此时的值0，并且将其减去1，赋值为-1，之后线程2获得cpu的执行权，输出堆内存中TicketNum此时的值-1，并且将其减去1，赋值为-2
 
@@ -4356,14 +4380,16 @@ class Window implements Runnable{
         sell();
     }
     public void sell(){
-        while(TicketNum>0){
-            try{
-                Thread.sleep(10);
+        while(true){
+            if(TicketNum>0){
+                try{
+                    Thread.sleep(10);
+                }
+                catch(InterruptedException e){
+                    System.out.println("现在我也不会处理啊，随便写写吧");
+                }
+                System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
             }
-            catch(InterruptedException e){
-                System.out.println("现在我也不会处理啊，随便写写吧");
-            }
-            System.out.println(TicketNum--);
         }
     }
 }
@@ -4379,15 +4405,16 @@ class TicketDemo13_13{
     }
 }
 /*部分输出
-5
-4
-3
-2
-1
-0
--1
+Thread-0......3
+Thread-2......2
+Thread-1......2
+Thread-0......1
+Thread-2......0
+Thread-1......-1
 */
 ```
+
+我们看到输出了0号票与-1号票，这就是线程不安全问题造成的
 
 # 13_14线程安全问题产生的原因
 
@@ -4407,7 +4434,7 @@ synchronized(/*对象*/){
 }
 ```
 
-所以就可以将线程不安全的卖票程序改写为:
+所以就可以将线程不安全的卖票程序改写为(为节约篇幅，以下都将sleep方法处的代码简写为一行):
 
 ```java
 class Demo{}
@@ -4418,15 +4445,12 @@ class Window implements Runnable{
         sell();
     }
     public void sell(){
-        synchronized(d){
-            while(TicketNum>0){
-                try{
-                    Thread.sleep(10);
+        while(true){
+            synchronized(d){
+                if(TicketNum>0){
+                    try{Thread.sleep(10);}catch(InterruptedException e){}
+                    System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
                 }
-                catch(InterruptedException e){
-                    System.out.println("现在我也不会处理啊，随便写写吧");
-                }
-                System.out.println(TicketNum--);
             }
         }
     }
@@ -4443,11 +4467,16 @@ class TicketDemo15_16_17{
     }
 }
 /*部分输出
-5
-4
-3
-2
-1
+Thread-1......10
+Thread-2......9
+Thread-2......8
+Thread-2......7
+Thread-0......6
+Thread-0......5
+Thread-0......4
+Thread-0......3
+Thread-0......2
+Thread-0......1
 */
 ```
 
@@ -4463,15 +4492,12 @@ class Window implements Runnable{
         sell();
     }
     public void sell(){
-        synchronized(obj){
-            while(TicketNum>0){
-                try{
-                    Thread.sleep(10);
+        while(true){
+            synchronized(obj){
+                if(TicketNum>0){
+                    try{Thread.sleep(10);}catch(InterruptedException e){}
+                    System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
                 }
-                catch(InterruptedException e){
-                    System.out.println("现在我也不会处理啊，随便写写吧");
-                }
-                System.out.println(TicketNum--);
             }
         }
     }
@@ -4488,11 +4514,12 @@ class TicketDemo15_16_17_2{
     }
 }
 /*部分输出
-5
-4
-3
-2
-1
+Thread-0......6
+Thread-0......5
+Thread-0......4
+Thread-0......3
+Thread-2......2
+Thread-2......1
 */
 ```
 
@@ -4508,15 +4535,12 @@ class Window implements Runnable{
     }
     public void sell(){
         Object obj = new Object();
-        synchronized(obj){
-            while(TicketNum>0){
-                try{
-                    Thread.sleep(10);
+        while(true){
+            synchronized(obj){
+                if(TicketNum>0){
+                    try{Thread.sleep(10);}catch(InterruptedException e){}
+                    System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
                 }
-                catch(InterruptedException e){
-                    System.out.println("现在我也不会处理啊，随便写写吧");
-                }
-                System.out.println(TicketNum--);
             }
         }
     }
@@ -4533,11 +4557,11 @@ class TicketDemo15_16_17_3{
     }
 }
 /*部分输出
-3
-2
-1
-0
--1
+Thread-0......3
+Thread-2......2
+Thread-0......1
+Thread-1......0
+Thread-2......-1
 */
 ```
 
@@ -4557,16 +4581,16 @@ class Window implements Runnable{
     public void run(){
         sell();
     }
-    public synchronized void sell(){
-            while(TicketNum>0){
-                try{
-                    Thread.sleep(10);
-                }
-                catch(InterruptedException e){
-                    System.out.println("现在我也不会处理啊，随便写写吧");
-                }
-                System.out.println(TicketNum--);
-            }
+    public void sell(){
+        while(true){
+            synSell();
+        }
+    }
+    public synchronized void synSell(){
+        if(TicketNum>0){
+            try{Thread.sleep(10);}catch(InterruptedException e){}
+            System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
+        }
     }
 }
 class TicketDemo18_19_20{
@@ -4581,19 +4605,51 @@ class TicketDemo18_19_20{
     }
 }
 /*部分输出
-5
-4
-3
-2
-1
+Thread-0......5
+Thread-0......4
+Thread-0......3
+Thread-2......2
+Thread-2......1
 */
 ```
 
-我们看到将show方法以synchronized关键字修饰也可以达到同步的目的，那么它持有的锁是什么呢？它由该类对象调用，那么哪个对象调用它就持有哪个对象的锁呗，所以它的锁为this
+我们看到将synShow方法以synchronized关键字修饰也可以达到同步的目的，那么它持有的锁是什么呢？它由该类对象调用，那么哪个对象调用它就持有哪个对象的锁呗，所以它的锁为this
 
-那么静态同步方法的锁是什么呢？静态方法里边没有this，但我们知道静态方法可以由类名直接调用，而类在java中也是对象，所以静态同步方法持有的锁为该静态方法所属的字节码文件对象，这段话下边我们会代码演示(演示的是字节码文件对象也可以作为锁)，在演示之前，我们需要知道:
+那么静态同步方法的锁是什么呢？静态方法里边没有this，但我们知道静态方法可以由类名直接调用，而类在java中也是对象，所以静态同步方法持有的锁为该静态方法所属的字节码文件对象，这段话下边我们会代码演示，在演示之前，我们需要知道:
 
 持有同一个对象即持有同一把锁的同步代码块和同步方法在程序中是"同步的"，意思就是这些**持相同锁的同步代码块和同步方法中同时只能有一个线程来访问**，**只有等该线程**执行同步代码段完毕，**释放锁之后，其它的某一个线程才能够访问该同步代码段**
+
+为了涉及较少的函数，我们将上述代码段改写为如下代码段，并且在如下代码段基础上进行一系列的改写
+
+```java
+class Window implements Runnable{
+    private int TicketNum = 100;
+    public void run(){
+        while(true){
+            synSell();
+        }
+    }
+    public synchronized void synSell(){
+        if(TicketNum>0){
+            try{Thread.sleep(10);}catch(InterruptedException e){}
+            System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
+        }
+    }
+}
+class TicketDemo18_19_20{
+    public static void main(String[] args){
+        Window w0 = new Window();
+        Thread t0 = new Thread(w0);
+        Thread t1 = new Thread(w0);
+        Thread t2 = new Thread(w0);
+        t0.start();
+        t1.start();
+        t2.start();
+    }
+}
+```
+
+### 代码段1_非静态同步方法持有的锁为this
 
 ```java
 class Window implements Runnable{
@@ -4601,18 +4657,21 @@ class Window implements Runnable{
     public boolean flag = true;
     public void run(){
         if(flag)
-            sell();
+            while(true)
+                synSell();
         else{
-            synchronized(this){
-                while(TicketNum>0){
-                    try{Thread.sleep(10);}catch(InterruptedException e){}
-                    System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
+            while(true){
+                synchronized(this){
+                    if(TicketNum>0){
+                        try{Thread.sleep(10);}catch(InterruptedException e){}
+                        System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
+                    }
                 }
             }
         }
     }
-    public synchronized void sell(){
-            while(TicketNum>0){
+    public synchronized void synSell(){
+            if(TicketNum>0){
                 try{Thread.sleep(10);}catch(InterruptedException e){}
                 System.out.println(Thread.currentThread().getName()+"...sell..."+TicketNum--);
 
@@ -4625,13 +4684,17 @@ class TicketDemo18_19_20_2{
         Thread t0 = new Thread(w0);
         Thread t1 = new Thread(w0);
         t0.start();
-        try{Thread.sleep(10);}catch(InterruptedException e){}
+        try{Thread.sleep(20);}catch(InterruptedException e){}
         w0.flag = false;
         t1.start();
     }
 }
 /*部分输出
-Thread-0...sell...5
+Thread-0...sell...9
+Thread-0...sell...8
+Thread-1......7
+Thread-1......6
+Thread-1......5
 Thread-0...sell...4
 Thread-0...sell...3
 Thread-0...sell...2
@@ -4639,28 +4702,39 @@ Thread-0...sell...1
 */
 ```
 
-输出特点:都是线程0在输出，并没有线程1，线程安全
+输出特点:线程安全
 
-原因:同步方法show持有的锁是this，上述程序中同步代码块持有的锁也是this，所以它们最终持有的锁都是Window类的对象w0，在线程0进入同步代码段执行的时候，获取了锁，线程1获取不到锁，进入不了同步代码段，当线程0执行完毕释放锁之后，线程1得到锁，但是已经不满足输出条件(TicketNum<=0了)，又释放锁，所以我们看到最终只有线程0在输出(注:同步代码段指的是同步方法或同步代码块)，综上得知上述代码线程安全(因为操作共享数据TicketNum的代码段是同步的(持有相同的锁))
+原因:
+
+1.同步方法synShow持有的锁是this，上述程序中同步代码块持有的锁也是this，所以它们最终持有的锁都是Window类的对象w0
+
+2.假如在线程0进入同步代码段执行的时候，获取了锁，那么线程1就获取不到锁，进入不了同步代码段，当线程0执行完毕释放锁之后，且cpu切换到线程1的时候，线程1得到锁，进入同步代码段执行，执行完毕后又释放锁
+
+3.接下来cpu也是切换到线程0或者线程1都有可能，比如说又切换到了线程1，线程1进入同步代码段开始执行并获取了锁，比如线程1还没有执行完同步代码段，这时cpu切换到了线程0，但是线程0获取不了锁(因为线程1还没有释放锁)，所以线程0执行不了同步代码段，直到线程1执行完释放锁，线程0才可能执行同步代码段(注:同步代码段指的是同步方法或同步代码块)，综上得知上述代码线程安全(简言之是因为操作共享数据TicketNum的代码段是同步的(持有相同的锁))
+
+### 代码段2_静态方法持有的锁为静态方法所属的字节码文件对象
 
 ```java
 class Window implements Runnable{
-    private int  TicketNum = 100;
+    private static int  TicketNum = 100;
     public boolean flag = true;
     public void run(){
         if(flag)
-            sell();
+            while(true)
+                synSell();
         else{
-            synchronized(this.getClass()){
-                while(TicketNum>0){
-                    try{Thread.sleep(10);}catch(InterruptedException e){}
-                    System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
+            while(true){
+                synchronized(this.getClass()/*换成Window.class也是一样的*/){
+                    if(TicketNum>0){
+                        try{Thread.sleep(10);}catch(InterruptedException e){}
+                        System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
+                    }
                 }
             }
         }
     }
-    public synchronized void sell(){
-            while(TicketNum>0){
+    public synchronized static void synSell(){
+            if(TicketNum>0){
                 try{Thread.sleep(10);}catch(InterruptedException e){}
                 System.out.println(Thread.currentThread().getName()+"...sell..."+TicketNum--);
 
@@ -4673,69 +4747,20 @@ class TicketDemo18_19_20_3{
         Thread t0 = new Thread(w0);
         Thread t1 = new Thread(w0);
         t0.start();
-        try{Thread.sleep(10);}catch(InterruptedException e){}
+        try{Thread.sleep(20);}catch(InterruptedException e){}
         w0.flag = false;
         t1.start();
     }
 }
 /*部分输出
-Thread-0...sell...4
-Thread-1......3
-Thread-0...sell...2
-Thread-1......1
-Thread-0...sell...0
-*/
-```
-
-输出特点:线程0与线程1都在输出，输出了0号票，线程不安全
-
-原因:静态方法show持有的锁为this，而静态代码块持有的锁为this对象所属的类类对象，两者锁不一致，但是又操作了共享数据TicketNum所以线程不安全
-
-```java
-class Window implements Runnable{
-    private static int TicketNum = 100;
-    public boolean flag = true;
-    public void run(){
-        if(flag)
-            sell();
-        else{
-            synchronized(this.getClass()/*换成Window.class也是一样的*/){
-                while(TicketNum>0){
-                    try{Thread.sleep(10);}catch(InterruptedException e){}
-                    System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
-                }
-            }
-        }
-    }
-    public static synchronized void sell(){
-            while(TicketNum>0){
-                try{Thread.sleep(10);}catch(InterruptedException e){}
-                System.out.println(Thread.currentThread().getName()+"...sell..."+TicketNum--);
-
-            }
-    }
-}
-class TicketDemo18_19_20_4{
-    public static void main(String[] args){
-        Window w0 = new Window();
-        Thread t0 = new Thread(w0);
-        Thread t1 = new Thread(w0);
-        t0.start();
-        try{Thread.sleep(10);}catch(InterruptedException e){}
-        w0.flag = false;
-        t1.start();
-    }
-}
-/*
-Thread-0...sell...6
 Thread-0...sell...5
 Thread-0...sell...4
-Thread-0...sell...3
-Thread-0...sell...2
-Thread-0...sell...1
+Thread-1......3
+Thread-1......2
+Thread-1......1
 */
 ```
 
-输出特点:都是线程0在输出，并没有线程1，线程安全
+输出特点:线程安全
 
 原因:静态方法所有的锁为其所属的字节码文件对象，而代码中同步代码块的锁也是该字节码文件对象，操作共享数据的同步代码段持有同一把锁，所以线程安全了

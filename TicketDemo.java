@@ -4,8 +4,10 @@ class Window extends Thread{
         sell();
     }
     public void sell(){
-        while(TicketNum>0){
-            System.out.println(TicketNum--);
+        while(true){
+            if(TicketNum>0){
+                System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
+            }
         }
     }
 }

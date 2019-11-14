@@ -3,18 +3,21 @@ class Window implements Runnable{
     public boolean flag = true;
     public void run(){
         if(flag)
-            sell();
+            while(true)
+                synSell();
         else{
-            synchronized(this){
-                while(TicketNum>0){
-                    try{Thread.sleep(10);}catch(InterruptedException e){}
-                    System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
+            while(true){
+                synchronized(this){
+                    if(TicketNum>0){
+                        try{Thread.sleep(10);}catch(InterruptedException e){}
+                        System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
+                    }
                 }
             }
         }
     }
-    public synchronized void sell(){
-            while(TicketNum>0){
+    public synchronized void synSell(){
+            if(TicketNum>0){
                 try{Thread.sleep(10);}catch(InterruptedException e){}
                 System.out.println(Thread.currentThread().getName()+"...sell..."+TicketNum--);
 
@@ -27,7 +30,7 @@ class TicketDemo18_19_20_2{
         Thread t0 = new Thread(w0);
         Thread t1 = new Thread(w0);
         t0.start();
-        try{Thread.sleep(10);}catch(InterruptedException e){}
+        try{Thread.sleep(20);}catch(InterruptedException e){}
         w0.flag = false;
         t1.start();
     }
