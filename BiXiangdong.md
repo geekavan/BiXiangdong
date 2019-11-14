@@ -101,6 +101,15 @@
     * [Thread类](#12_05Thread类)
     * [Thread类中的方法及线程名称](#12_06Thread类中的方法及线程名称)
 
+* [13](#13)
+    * [创建线程的第二种方式](#13_09创建线程的第二种方式)
+    * [多线程_卖票示例](#13_12多线程_卖票示例)
+        * [通过继承Thread类实现](#通过继承Thread类实现)
+        * [通过Runnable接口实现](#通过Runnable接口实现)
+    * [线程安全问题](#13_13线程安全问题)
+    * [线程安全问题产生的原因](#13_14线程安全问题产生的原因)
+    * [同步代码块_同步的好处和弊端_同步的前提](#13_15_16_17同步代码块_同步的好处和弊端_同步的前提)
+
 # 02
 
 # github中md编写注意事项
@@ -4206,3 +4215,527 @@ hehehehehehe!
 ```
 
 我们看到自始至终程序中只有main线程
+
+# 13
+
+# 13_09创建线程的第二种方式
+
+以下文字来源于API文档:
+
+创建线程的另一种方法是声明实现 Runnable 接口的类。该类然后实现 run 方法。然后可以分配该类的实例，在创建 Thread 时作为一个参数来传递并启动。采用这种风格的同一个例子如下所示： 
+
+
+
+--------------------------------------------------------------------------------
+
+     class PrimeRun implements Runnable {
+         long minPrime;
+         PrimeRun(long minPrime) {
+             this.minPrime = minPrime;
+         }
+ 
+         public void run() {
+             // compute primes larger than minPrime
+              . . .
+         }
+     }
+ 
+--------------------------------------------------------------------------------
+
+然后，下列代码会创建并启动一个线程： 
+
+
+     PrimeRun p = new PrimeRun(143);
+     new Thread(p).start();
+
+# 13_12多线程_卖票示例
+
+需求:三个窗口分别卖票，同时进行
+
+### 通过继承Thread类实现
+
+```java
+class Window extends Thread{
+    private static int TicketNum = 100;
+    public void run(){
+        sell();
+    }
+    public void sell(){
+        while(TicketNum>0){
+            System.out.println(TicketNum--);
+        }
+    }
+}
+class TicketDemo{
+    public static void main(String[] args){
+        Window w0 = new Window();
+        Window w1 = new Window();
+        Window w2 = new Window();
+        w0.start();
+        w1.start();
+        w2.start();
+    }
+}
+```
+
+我们看到通过继承Thread类实现多线程方式的步骤为:
+
+1.子类继承Thread类
+
+2.覆盖run方法，将子类中需要多线程执行的任务放置在run方法中
+
+3.创建子类对象，调用子类对象的start方法(该start方法是从Thread类继承而来的)
+
+该种实现多线程方式的缺点为:
+
+1.为了将类中的某些方法以多线程的方式执行，从而使这个类继承Thread类，成为Thread体系的一部分，不能够再继承其它的类，这种做法有些"得不偿失"
+
+2.而且继承最好不是因为要用父类的一些东西，而是因为本身两个类就属于一个体系，或者说子类就是属于父类的体系，这样程序才能更加清晰，易懂
+
+这里我们将TicketNum放在了静态方法区，那么我们可以将其放置在堆中，使得多个窗口仍然卖的是同一种票吗？
+
+### 通过Runnable接口实现
+
+```java
+class Window implements Runnable{
+    private int TicketNum = 100;
+    public void run(){
+        sell();
+    }
+    public void sell(){
+        while(TicketNum>0){
+            System.out.println(TicketNum--);
+        }
+    }
+}
+class TicketDemo2{
+    public static void main(String[] args){
+        Window w0 = new Window();
+        Thread t0 = new Thread(w0);
+        Thread t1 = new Thread(w0);
+        Thread t2 = new Thread(w0);
+        t0.start();
+        t1.start();
+        t2.start();
+    }
+}
+```
+
+我们看到通过Runnable接口实现多线程方式的步骤为:
+
+1.线程任务类实现Runnable接口
+
+2.创建线程任务类对象
+
+3.创建线程对象，并且传入线程任务类对象
+
+4.启动线程
+
+我们需要知道:
+
+1.通过Runnable接口实现多线程的方式，既实现了特定任务的多线程执行，又避免了继承Thread类，成为其体系的一部分
+
+2.通过Runnable接口实现多线程的方式，其中TicketNum存储在了堆中
+
+3.在创建Thread类对象传入Runnable接口的实现类对象中，实现类对象就"隐藏了"类中其它的方法，只"暴露"了run方法
+
+4.通过Runnable接口实现多线程的方式是我们经常采用的多线程实现方式
+
+# 13_13线程安全问题
+
+在13_12节的程序中，如果当TicketNum=1的时候，线程0执行到while(TicketNum>0)并且进入循环体内，此时，线程1获得cpu的执行权，当线程1执行到while(TicketNum>0)并且进入循环体内，此时，线程2获得cpu的执行权，当线程2执行到while(TicketNum>0)并且进入循环体内
+
+此时，线程0获得cpu的执行权，输出堆内存中TicketNum此时的值1，并且将其减去1，赋值为0，之后线程1获得cpu的执行权，输出堆内存中TicketNum此时的值0，并且将其减去1，赋值为-1，之后线程2获得cpu的执行权，输出堆内存中TicketNum此时的值-1，并且将其减去1，赋值为-2
+
+程序如下，为了让上述过程更有可能发生，我们调用了线程类的sleep函数，通过这个例子我们看到了多线程程序中的安全隐患问题
+
+```java
+class Window implements Runnable{
+    private int TicketNum = 100;
+    public void run(){
+        sell();
+    }
+    public void sell(){
+        while(TicketNum>0){
+            try{
+                Thread.sleep(10);
+            }
+            catch(InterruptedException e){
+                System.out.println("现在我也不会处理啊，随便写写吧");
+            }
+            System.out.println(TicketNum--);
+        }
+    }
+}
+class TicketDemo13_13{
+    public static void main(String[] args){
+        Window w0 = new Window();
+        Thread t0 = new Thread(w0);
+        Thread t1 = new Thread(w0);
+        Thread t2 = new Thread(w0);
+        t0.start();
+        t1.start();
+        t2.start();
+    }
+}
+/*部分输出
+5
+4
+3
+2
+1
+0
+-1
+*/
+```
+
+# 13_14线程安全问题产生的原因
+
+原因(前提):
+
+1.多个线程操作共享数据
+
+2.操作共享数据的代码有多条(只有一条时还可能不会出事)
+
+# 13_15_16_17同步代码块_同步的好处和弊端_同步的前提
+
+我们要怎么解决多线程产生的安全隐患呢？我们现在已经知道安全隐患产生的原因为在一个需要同一个线程一起执行完的代码段中，其它线程参与了进来，那么我们将需要同一个线程一起执行完的代码段"圈起来"，在某个线程执行它的时候，不让其它线程参与进来不就可以了吗，在java中这种想法通过synchronized关键字来实现，具体格式为:
+
+```java
+synchronized(/*对象*/){
+    //需要同步的代码段
+}
+```
+
+所以就可以将线程不安全的卖票程序改写为:
+
+```java
+class Demo{}
+class Window implements Runnable{
+    private int TicketNum = 100;
+    Demo d = new Demo();
+    public void run(){
+        sell();
+    }
+    public void sell(){
+        synchronized(d){
+            while(TicketNum>0){
+                try{
+                    Thread.sleep(10);
+                }
+                catch(InterruptedException e){
+                    System.out.println("现在我也不会处理啊，随便写写吧");
+                }
+                System.out.println(TicketNum--);
+            }
+        }
+    }
+}
+class TicketDemo15_16_17{
+    public static void main(String[] args){
+        Window w0 = new Window();
+        Thread t0 = new Thread(w0);
+        Thread t1 = new Thread(w0);
+        Thread t2 = new Thread(w0);
+        t0.start();
+        t1.start();
+        t2.start();
+    }
+}
+/*部分输出
+5
+4
+3
+2
+1
+*/
+```
+
+上述程序新建了一个Demo类，以Demo类对象作为synchronized格式中的参数，即以Demo类对象d作为同步锁
+
+或者我们可以将线程不安全的卖票程序改写为:
+
+```java
+class Window implements Runnable{
+    private int TicketNum = 100;
+    Object obj = new Object();
+    public void run(){
+        sell();
+    }
+    public void sell(){
+        synchronized(obj){
+            while(TicketNum>0){
+                try{
+                    Thread.sleep(10);
+                }
+                catch(InterruptedException e){
+                    System.out.println("现在我也不会处理啊，随便写写吧");
+                }
+                System.out.println(TicketNum--);
+            }
+        }
+    }
+}
+class TicketDemo15_16_17_2{
+    public static void main(String[] args){
+        Window w0 = new Window();
+        Thread t0 = new Thread(w0);
+        Thread t1 = new Thread(w0);
+        Thread t2 = new Thread(w0);
+        t0.start();
+        t1.start();
+        t2.start();
+    }
+}
+/*部分输出
+5
+4
+3
+2
+1
+*/
+```
+
+我们看到，这里将上帝类Object类的对象obj作为了同步锁
+
+我们接下来再看一个程序:
+
+```java
+class Window implements Runnable{
+    private int TicketNum = 100;
+    public void run(){
+        sell();
+    }
+    public void sell(){
+        Object obj = new Object();
+        synchronized(obj){
+            while(TicketNum>0){
+                try{
+                    Thread.sleep(10);
+                }
+                catch(InterruptedException e){
+                    System.out.println("现在我也不会处理啊，随便写写吧");
+                }
+                System.out.println(TicketNum--);
+            }
+        }
+    }
+}
+class TicketDemo15_16_17_3{
+    public static void main(String[] args){
+        Window w0 = new Window();
+        Thread t0 = new Thread(w0);
+        Thread t1 = new Thread(w0);
+        Thread t2 = new Thread(w0);
+        t0.start();
+        t1.start();
+        t2.start();
+    }
+}
+/*部分输出
+3
+2
+1
+0
+-1
+*/
+```
+
+通过以上三个例子我们明白了，目前来看同步锁只要是个对象就行(但是猜想后面肯定会讲同步锁所用的对象的意义)，但是若想要多个线程不互相干扰，那么这多个线程必须用同一个锁，这是同步的前提，也是上述最后一个例子出现0及-1的输出票号的原因
+
+同步的好处:避免了线程安全问题
+
+同步的弊端:相对降低了效率，因为同步外的线程都会判断锁(同步外的线程当获得cpu执行权的时候会判断是否能获得同步锁)
+
+# 13_18_19_20同步函数_验证同步函数的锁_验证静态同步函数的锁
+
+同步函数:
+
+```java
+class Window implements Runnable{
+    private int TicketNum = 100;
+    public void run(){
+        sell();
+    }
+    public synchronized void sell(){
+            while(TicketNum>0){
+                try{
+                    Thread.sleep(10);
+                }
+                catch(InterruptedException e){
+                    System.out.println("现在我也不会处理啊，随便写写吧");
+                }
+                System.out.println(TicketNum--);
+            }
+    }
+}
+class TicketDemo18_19_20{
+    public static void main(String[] args){
+        Window w0 = new Window();
+        Thread t0 = new Thread(w0);
+        Thread t1 = new Thread(w0);
+        Thread t2 = new Thread(w0);
+        t0.start();
+        t1.start();
+        t2.start();
+    }
+}
+/*部分输出
+5
+4
+3
+2
+1
+*/
+```
+
+我们看到将show方法以synchronized关键字修饰也可以达到同步的目的，那么它持有的锁是什么呢？它由该类对象调用，那么哪个对象调用它就持有哪个对象的锁呗，所以它的锁为this
+
+那么静态同步方法的锁是什么呢？静态方法里边没有this，但我们知道静态方法可以由类名直接调用，而类在java中也是对象，所以静态同步方法持有的锁为该静态方法所属的字节码文件对象，这段话下边我们会代码演示(演示的是字节码文件对象也可以作为锁)，在演示之前，我们需要知道:
+
+持有同一个对象即持有同一把锁的同步代码块和同步方法在程序中是"同步的"，意思就是这些**持相同锁的同步代码块和同步方法中同时只能有一个线程来访问**，**只有等该线程**执行同步代码段完毕，**释放锁之后，其它的某一个线程才能够访问该同步代码段**
+
+```java
+class Window implements Runnable{
+    private int  TicketNum = 100;
+    public boolean flag = true;
+    public void run(){
+        if(flag)
+            sell();
+        else{
+            synchronized(this){
+                while(TicketNum>0){
+                    try{Thread.sleep(10);}catch(InterruptedException e){}
+                    System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
+                }
+            }
+        }
+    }
+    public synchronized void sell(){
+            while(TicketNum>0){
+                try{Thread.sleep(10);}catch(InterruptedException e){}
+                System.out.println(Thread.currentThread().getName()+"...sell..."+TicketNum--);
+
+            }
+    }
+}
+class TicketDemo18_19_20_2{
+    public static void main(String[] args){
+        Window w0 = new Window();
+        Thread t0 = new Thread(w0);
+        Thread t1 = new Thread(w0);
+        t0.start();
+        try{Thread.sleep(10);}catch(InterruptedException e){}
+        w0.flag = false;
+        t1.start();
+    }
+}
+/*部分输出
+Thread-0...sell...5
+Thread-0...sell...4
+Thread-0...sell...3
+Thread-0...sell...2
+Thread-0...sell...1
+*/
+```
+
+输出特点:都是线程0在输出，并没有线程1，线程安全
+
+原因:同步方法show持有的锁是this，上述程序中同步代码块持有的锁也是this，所以它们最终持有的锁都是Window类的对象w0，在线程0进入同步代码段执行的时候，获取了锁，线程1获取不到锁，进入不了同步代码段，当线程0执行完毕释放锁之后，线程1得到锁，但是已经不满足输出条件(TicketNum<=0了)，又释放锁，所以我们看到最终只有线程0在输出(注:同步代码段指的是同步方法或同步代码块)，综上得知上述代码线程安全(因为操作共享数据TicketNum的代码段是同步的(持有相同的锁))
+
+```java
+class Window implements Runnable{
+    private int  TicketNum = 100;
+    public boolean flag = true;
+    public void run(){
+        if(flag)
+            sell();
+        else{
+            synchronized(this.getClass()){
+                while(TicketNum>0){
+                    try{Thread.sleep(10);}catch(InterruptedException e){}
+                    System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
+                }
+            }
+        }
+    }
+    public synchronized void sell(){
+            while(TicketNum>0){
+                try{Thread.sleep(10);}catch(InterruptedException e){}
+                System.out.println(Thread.currentThread().getName()+"...sell..."+TicketNum--);
+
+            }
+    }
+}
+class TicketDemo18_19_20_3{
+    public static void main(String[] args){
+        Window w0 = new Window();
+        Thread t0 = new Thread(w0);
+        Thread t1 = new Thread(w0);
+        t0.start();
+        try{Thread.sleep(10);}catch(InterruptedException e){}
+        w0.flag = false;
+        t1.start();
+    }
+}
+/*部分输出
+Thread-0...sell...4
+Thread-1......3
+Thread-0...sell...2
+Thread-1......1
+Thread-0...sell...0
+*/
+```
+
+输出特点:线程0与线程1都在输出，输出了0号票，线程不安全
+
+原因:静态方法show持有的锁为this，而静态代码块持有的锁为this对象所属的类类对象，两者锁不一致，但是又操作了共享数据TicketNum所以线程不安全
+
+```java
+class Window implements Runnable{
+    private static int TicketNum = 100;
+    public boolean flag = true;
+    public void run(){
+        if(flag)
+            sell();
+        else{
+            synchronized(this.getClass()/*换成Window.class也是一样的*/){
+                while(TicketNum>0){
+                    try{Thread.sleep(10);}catch(InterruptedException e){}
+                    System.out.println(Thread.currentThread().getName()+"......"+TicketNum--);
+                }
+            }
+        }
+    }
+    public static synchronized void sell(){
+            while(TicketNum>0){
+                try{Thread.sleep(10);}catch(InterruptedException e){}
+                System.out.println(Thread.currentThread().getName()+"...sell..."+TicketNum--);
+
+            }
+    }
+}
+class TicketDemo18_19_20_4{
+    public static void main(String[] args){
+        Window w0 = new Window();
+        Thread t0 = new Thread(w0);
+        Thread t1 = new Thread(w0);
+        t0.start();
+        try{Thread.sleep(10);}catch(InterruptedException e){}
+        w0.flag = false;
+        t1.start();
+    }
+}
+/*
+Thread-0...sell...6
+Thread-0...sell...5
+Thread-0...sell...4
+Thread-0...sell...3
+Thread-0...sell...2
+Thread-0...sell...1
+*/
+```
+
+输出特点:都是线程0在输出，并没有线程1，线程安全
+
+原因:静态方法所有的锁为其所属的字节码文件对象，而代码中同步代码块的锁也是该字节码文件对象，操作共享数据的同步代码段持有同一把锁，所以线程安全了
