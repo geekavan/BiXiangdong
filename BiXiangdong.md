@@ -113,6 +113,8 @@
         * [代码段1_非静态同步方法持有的锁为this](#代码段1_非静态同步方法持有的锁为this)
         * [代码段2_静态方法持有的锁为静态方法所属的字节码文件对象](#代码段2_静态方法持有的锁为静态方法所属的字节码文件对象)
         * [代码段3_检验](#代码段3_检验)
+    * [单例模式中涉及的线程安全问题](#13_21单例模式中涉及的线程安全问题)
+    * [死锁](#13_22死锁)
 
 # 02
 
@@ -4817,3 +4819,129 @@ Thread-1......0
 输出特点:打印出0号票，线程不安全
 
 原因:静态方法所有的锁为其所属的字节码文件对象，而代码中同步代码块的锁为this，操作共享数据的同步代码段持有不同的锁，所以线程不安全
+
+# 13_21单例模式中涉及的线程安全问题
+
+```java
+/**
+ * 单例模式_饿汉式
+ */
+class Single{
+    private static final Single s = new Single();
+    private Single(){}
+    public static Single getInstance(){
+        return s;
+    }
+}
+
+/**
+ * 单例模式_懒汉式
+ */
+class Single{
+    private static Single s = null;
+    private Single(){}
+    public static Single getInstance(){
+        if(s==null)
+            s = new Single();
+        return s;
+    }
+}
+```
+
+饿汉式线程安全，懒汉式是线程不安全的，当线程0进入if代码块内部之后线程1获得cpu的执行权也进入if代码块的内部，随后线程0新建立了一个对象并赋值给成员变量s，线程1随后又会再建立一个对象并赋值给成员变量s，这就不是单例设计模式了，因为这就有多个实例了
+
+更改为:
+
+```java
+class Single{
+    private static Single s = null;
+    private Single(){}
+    public synchronized static Single getInstance(){
+        if(s==null)
+            s = new Single();
+        return s;
+    }
+}
+```
+
+这样是线程安全的，但是每调用一次getInstance方法就会判断一次锁效率不高
+
+继续修改为:
+
+```java
+class Single{
+    private static Single s = null;
+    private Single(){}
+    public static Single getInstance(){
+        if(s==null){
+            synchronized(Single.class){
+                if(s==null)
+                    s = new Single();
+            }
+        }
+        return s;
+    }
+}
+```
+
+这样就不用每次调用都判断锁了，效率比较高
+
+一般地，可能都不会用同步方法而是采用同步代码块，从上边例子我们也看到，同步代码块效率更高一些
+
+# 13_22死锁
+
+```java
+class Demo implements Runnable{
+    private boolean flag;
+    Demo(boolean flag){this.flag = flag;}
+    public void run(){
+        if(flag){
+            while(true)
+                synchronized(Lock.locka){
+                    System.out.println(Thread.currentThread().getName()+"...if...locka");
+                    synchronized(Lock.lockb){
+                        System.out.println(Thread.currentThread().getName()+"...if...lockb");
+                    }
+                }
+        }
+        else{
+            while(true)
+            synchronized(Lock.lockb){
+                System.out.println(Thread.currentThread().getName()+"...else...lockb");
+                synchronized(Lock.locka){
+                    System.out.println(Thread.currentThread().getName()+"...else...locka");
+                }
+            }
+        }
+    }
+}
+class Lock{
+    public static Object locka = new Object(); 
+    public static Object lockb = new Object(); 
+}
+class DeadLockDemo{
+    public static void main(String[] args){
+        Demo d1 = new Demo(true);
+        Demo d2 = new Demo(false);
+        Thread t1 = new Thread(d1);
+        Thread t2 = new Thread(d2);
+        t1.start();
+        try{Thread.sleep(10);}catch(Exception e){}
+        t2.start();
+    }
+}
+/*未执行完毕，程序锁死
+$ java DeadLockDemo
+Thread-0...if...locka
+Thread-0...if...lockb
+Thread-0...if...locka
+Thread-0...if...lockb
+Thread-0...if...locka
+Thread-0...if...lockb
+Thread-1...else...lockb
+Thread-0...if...locka
+*/
+```
+
+从输出我们看到线程0获取locka锁，获取lockb锁，释放lockb锁，释放locka锁，，，线程1进入执行，获取了lockb锁，想要获取locka锁，但是线程0已经获取了locka锁，想要或取lockb锁，两个线程锁死
+
