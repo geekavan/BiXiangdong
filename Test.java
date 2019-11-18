@@ -1,14 +1,42 @@
-import java.util.List;
-import java.util.ArrayList;
 class Test{
     public static void main(String[] args){
-        func(new ArrayList<Integer>());
-        func(new ArrayList<String>());
-    }
-    public static int func(List<Integer> list){
-        return 1;
-    }
-    public static String func(List<String> list){
-        return "!";
+        BoundedBuffer b = new BoundedBuffer();
+
+        Thread t0 = new Thread( new Runnable(){
+            public void run(){
+                while(true){
+                    try{
+                    b.put("xixi");
+                    }
+                    catch(Exception e){}
+                }
+            }
+        });
+
+        Thread t1 = new Thread( new Runnable(){
+            public void run(){
+                while(true){
+                    try{
+                    b.take();
+                    }
+                    catch(Exception e){}
+                }
+            }
+        });
+
+        Thread t2 = new Thread( new Runnable(){
+            public void run(){
+                while(true){
+                    try{
+                    b.take();
+                    }
+                    catch(Exception e){}
+                }
+            }
+        });
+
+        t0.start();
+        t1.start();
+        t2.start();
     }
 }
