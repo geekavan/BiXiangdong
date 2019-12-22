@@ -8,7 +8,11 @@ class Demo21_12{
 
         BufferedWriter bufw = new BufferedWriter(fw);
 
-        bufw.write("abcdef");
+        for(int i=1;i<5;i++){
+            bufw.write("abcde"+i);
+            bufw.newLine();
+            bufw.flush();
+        }
 
         bufw.close();
     }
