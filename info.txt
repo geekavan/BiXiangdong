@@ -1,0 +1,6 @@
+#
+#Wed Jan 22 19:17:25 CST 2020
+zhangsan=98
+lisi=24
+wangwu=35
+zhaoliu=46
