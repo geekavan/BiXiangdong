@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
 
-class Demo23_54 {
+class Demo24_54 {
     public static void main(String[] args) throws IOException {
         File file = new File("f:\\0.jpg");
         File desDir = new File("f:\\test");
